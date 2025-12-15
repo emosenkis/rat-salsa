@@ -83,26 +83,26 @@ pub struct DoubleClick;
 ///
 pub trait HandleEvent<Event, Qualifier, Return>
 where
-    Return: ConsumedEvent,
+  Return: ConsumedEvent,
 {
-    /// Handle an event.
-    ///
-    /// * self - The widget state.
-    /// * event - Event type.
-    /// * qualifier - Event handling qualifier.
-    ///   This library defines some standard values [Regular], [MouseOnly].
-    ///   Further ideas:
-    ///     * ReadOnly
-    ///     * Special behaviour like DoubleClick, HotKey.
-    /// * Returns some result, see [Outcome]
-    fn handle(&mut self, event: &Event, qualifier: Qualifier) -> Return;
+  /// Handle an event.
+  ///
+  /// * self - The widget state.
+  /// * event - Event type.
+  /// * qualifier - Event handling qualifier.
+  ///   This library defines some standard values [Regular], [MouseOnly].
+  ///   Further ideas:
+  ///     * ReadOnly
+  ///     * Special behaviour like DoubleClick, HotKey.
+  /// * Returns some result, see [Outcome]
+  fn handle(&mut self, event: &Event, qualifier: Qualifier) -> Return;
 }
 
 /// Catch all event-handler for the null state `()`.
 impl<E, Q> HandleEvent<E, Q, Outcome> for () {
-    fn handle(&mut self, _event: &E, _qualifier: Q) -> Outcome {
-        Outcome::Continue
-    }
+  fn handle(&mut self, _event: &E, _qualifier: Q) -> Outcome {
+    Outcome::Continue
+  }
 }
 
 /// When calling multiple event-handlers, the minimum information required
@@ -114,104 +114,104 @@ impl<E, Q> HandleEvent<E, Q, Outcome> for () {
 ///
 /// See also [flow] and [try_flow] and the extra [break_flow].
 pub trait ConsumedEvent {
-    /// Is this the 'consumed' result.
-    fn is_consumed(&self) -> bool;
+  /// Is this the 'consumed' result.
+  fn is_consumed(&self) -> bool;
 
-    /// Or-Else chaining with `is_consumed()` as the split.
-    #[inline(always)]
-    fn or_else<F>(self, f: F) -> Self
-    where
-        F: FnOnce() -> Self,
-        Self: Sized,
-    {
-        if self.is_consumed() { self } else { f() }
-    }
+  /// Or-Else chaining with `is_consumed()` as the split.
+  #[inline(always)]
+  fn or_else<F>(self, f: F) -> Self
+  where
+    F: FnOnce() -> Self,
+    Self: Sized,
+  {
+    if self.is_consumed() { self } else { f() }
+  }
 
-    /// Or-Else chaining with `is_consumed()` as the split.
-    #[inline(always)]
-    fn or_else_try<F, E>(self, f: F) -> Result<Self, E>
-    where
-        Self: Sized,
-        F: FnOnce() -> Result<Self, E>,
-    {
-        if self.is_consumed() {
-            Ok(self)
-        } else {
-            Ok(f()?)
-        }
+  /// Or-Else chaining with `is_consumed()` as the split.
+  #[inline(always)]
+  fn or_else_try<F, E>(self, f: F) -> Result<Self, E>
+  where
+    Self: Sized,
+    F: FnOnce() -> Result<Self, E>,
+  {
+    if self.is_consumed() {
+      Ok(self)
+    } else {
+      Ok(f()?)
     }
+  }
 
-    /// And_then-chaining based on is_consumed().
-    /// Returns max(self, f()).
-    #[inline(always)]
-    fn and_then<F>(self, f: F) -> Self
-    where
-        Self: Sized + Ord,
-        F: FnOnce() -> Self,
-    {
-        if self.is_consumed() {
-            max(self, f())
-        } else {
-            self
-        }
+  /// And_then-chaining based on is_consumed().
+  /// Returns max(self, f()).
+  #[inline(always)]
+  fn and_then<F>(self, f: F) -> Self
+  where
+    Self: Sized + Ord,
+    F: FnOnce() -> Self,
+  {
+    if self.is_consumed() {
+      max(self, f())
+    } else {
+      self
     }
+  }
 
-    /// And_then-chaining based on is_consumed().
-    /// Returns max(self, f()).
-    #[inline(always)]
-    fn and_then_try<F, E>(self, f: F) -> Result<Self, E>
-    where
-        Self: Sized + Ord,
-        F: FnOnce() -> Result<Self, E>,
-    {
-        if self.is_consumed() {
-            Ok(max(self, f()?))
-        } else {
-            Ok(self)
-        }
+  /// And_then-chaining based on is_consumed().
+  /// Returns max(self, f()).
+  #[inline(always)]
+  fn and_then_try<F, E>(self, f: F) -> Result<Self, E>
+  where
+    Self: Sized + Ord,
+    F: FnOnce() -> Result<Self, E>,
+  {
+    if self.is_consumed() {
+      Ok(max(self, f()?))
+    } else {
+      Ok(self)
     }
+  }
 
-    /// Then-chaining. Returns max(self, f()).
-    #[inline(always)]
-    #[deprecated(since = "1.2.2", note = "use and_then()")]
-    fn and<F>(self, f: F) -> Self
-    where
-        Self: Sized + Ord,
-        F: FnOnce() -> Self,
-    {
-        if self.is_consumed() {
-            max(self, f())
-        } else {
-            self
-        }
+  /// Then-chaining. Returns max(self, f()).
+  #[inline(always)]
+  #[deprecated(since = "1.2.2", note = "use and_then()")]
+  fn and<F>(self, f: F) -> Self
+  where
+    Self: Sized + Ord,
+    F: FnOnce() -> Self,
+  {
+    if self.is_consumed() {
+      max(self, f())
+    } else {
+      self
     }
+  }
 
-    /// Then-chaining. Returns max(self, f()).
-    #[inline(always)]
-    #[deprecated(since = "1.2.2", note = "use and_then_try()")]
-    fn and_try<F, E>(self, f: F) -> Result<Self, E>
-    where
-        Self: Sized + Ord,
-        F: FnOnce() -> Result<Self, E>,
-    {
-        if self.is_consumed() {
-            Ok(max(self, f()?))
-        } else {
-            Ok(self)
-        }
+  /// Then-chaining. Returns max(self, f()).
+  #[inline(always)]
+  #[deprecated(since = "1.2.2", note = "use and_then_try()")]
+  fn and_try<F, E>(self, f: F) -> Result<Self, E>
+  where
+    Self: Sized + Ord,
+    F: FnOnce() -> Result<Self, E>,
+  {
+    if self.is_consumed() {
+      Ok(max(self, f()?))
+    } else {
+      Ok(self)
     }
+  }
 }
 
 impl<V, E> ConsumedEvent for Result<V, E>
 where
-    V: ConsumedEvent,
+  V: ConsumedEvent,
 {
-    fn is_consumed(&self) -> bool {
-        match self {
-            Ok(v) => v.is_consumed(),
-            Err(_) => true,
-        }
+  fn is_consumed(&self) -> bool {
+    match self {
+      Ok(v) => v.is_consumed(),
+      Err(_) => true,
     }
+  }
 }
 
 /// The baseline outcome for an event-handler.
@@ -221,35 +221,35 @@ where
 /// and implement `ConsumedEvent` as well.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Outcome {
-    /// The given event has not been used at all.
-    #[default]
-    Continue,
-    /// The event has been recognized, but nothing noticeable has changed.
-    /// Further processing for this event may stop.
-    /// Rendering the ui is not necessary.
-    Unchanged,
-    /// The event has been recognized and there is some change due to it.
-    /// Further processing for this event may stop.
-    /// Rendering the ui is advised.
-    Changed,
+  /// The given event has not been used at all.
+  #[default]
+  Continue,
+  /// The event has been recognized, but nothing noticeable has changed.
+  /// Further processing for this event may stop.
+  /// Rendering the ui is not necessary.
+  Unchanged,
+  /// The event has been recognized and there is some change due to it.
+  /// Further processing for this event may stop.
+  /// Rendering the ui is advised.
+  Changed,
 }
 
 impl ConsumedEvent for Outcome {
-    fn is_consumed(&self) -> bool {
-        *self != Outcome::Continue
-    }
+  fn is_consumed(&self) -> bool {
+    *self != Outcome::Continue
+  }
 }
 
 /// Widgets often define functions that return bool to indicate a changed state.
 /// This converts `true` / `false` to `Outcome::Changed` / `Outcome::Unchanged`.
 impl From<bool> for Outcome {
-    fn from(value: bool) -> Self {
-        if value {
-            Outcome::Changed
-        } else {
-            Outcome::Unchanged
-        }
+  fn from(value: bool) -> Self {
+    if value {
+      Outcome::Changed
+    } else {
+      Outcome::Unchanged
     }
+  }
 }
 
 /// Tries to unify the currently 3 flow! constructs.
@@ -347,24 +347,24 @@ macro_rules! event_flow {
 /// the result of the operation is written to the log.
 #[macro_export]
 macro_rules! flow {
-    (log $n:ident: $x:expr) => {{
-        use log::debug;
-        use $crate::ConsumedEvent;
-        let r = $x;
-        if r.is_consumed() {
-            debug!("{} {:#?}", stringify!($n), r);
-            return r.into();
-        } else {
-            debug!("{} continue", stringify!($n));
-        }
-    }};
-    ($x:expr) => {{
-        use $crate::ConsumedEvent;
-        let r = $x;
-        if r.is_consumed() {
-            return r.into();
-        }
-    }};
+  (log $n:ident: $x:expr) => {{
+    use log::debug;
+    use $crate::ConsumedEvent;
+    let r = $x;
+    if r.is_consumed() {
+      debug!("{} {:#?}", stringify!($n), r);
+      return r.into();
+    } else {
+      debug!("{} continue", stringify!($n));
+    }
+  }};
+  ($x:expr) => {{
+    use $crate::ConsumedEvent;
+    let r = $x;
+    if r.is_consumed() {
+      return r.into();
+    }
+  }};
 }
 
 /// Use `event_flow!` instead.
@@ -384,24 +384,24 @@ macro_rules! flow {
 /// the result of the operation is written to the log.
 #[macro_export]
 macro_rules! try_flow {
-    (log $n:ident: $x:expr) => {{
-        use log::debug;
-        use $crate::ConsumedEvent;
-        let r = $x;
-        if r.is_consumed() {
-            debug!("{} {:#?}", stringify!($n), r);
-            return Ok(r.into());
-        } else {
-            debug!("{} continue", stringify!($n));
-        }
-    }};
-    ($x:expr) => {{
-        use $crate::ConsumedEvent;
-        let r = $x;
-        if r.is_consumed() {
-            return Ok(r.into());
-        }
-    }};
+  (log $n:ident: $x:expr) => {{
+    use log::debug;
+    use $crate::ConsumedEvent;
+    let r = $x;
+    if r.is_consumed() {
+      debug!("{} {:#?}", stringify!($n), r);
+      return Ok(r.into());
+    } else {
+      debug!("{} continue", stringify!($n));
+    }
+  }};
+  ($x:expr) => {{
+    use $crate::ConsumedEvent;
+    let r = $x;
+    if r.is_consumed() {
+      return Ok(r.into());
+    }
+  }};
 }
 
 /// Use `event_flow!` instead.
@@ -441,6 +441,6 @@ macro_rules! break_flow {
 }
 
 mod _private {
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct NonExhaustive;
+  #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+  pub struct NonExhaustive;
 }

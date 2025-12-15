@@ -72,37 +72,37 @@ mod glued;
 /// and this gives the relative placement.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum TabPlacement {
-    /// On top of the given area. Placed slightly left, so that
-    /// the menu text aligns with the left border.
-    #[default]
-    Top,
-    /// Placed left-top of the given area.
-    /// For a submenu opening to the left.
-    Left,
-    /// Placed right-top of the given area.
-    /// For a submenu opening to the right.
-    Right,
-    /// Below the bottom of the given area. Placed slightly left,
-    /// so that the menu text aligns with the left border.
-    Bottom,
+  /// On top of the given area. Placed slightly left, so that
+  /// the menu text aligns with the left border.
+  #[default]
+  Top,
+  /// Placed left-top of the given area.
+  /// For a submenu opening to the left.
+  Left,
+  /// Placed right-top of the given area.
+  /// For a submenu opening to the right.
+  Right,
+  /// Below the bottom of the given area. Placed slightly left,
+  /// so that the menu text aligns with the left border.
+  Bottom,
 }
 
 /// Rendering style for the tabs.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum TabType {
-    /// Basic tabs glued to the outside of the widget.
-    Glued,
+  /// Basic tabs glued to the outside of the widget.
+  Glued,
 
-    /// Embedded tabs in the Block.
-    ///
-    /// If no block has been set, this will draw a block at the side
-    /// of the tabs.
-    ///
-    /// On the left/right side this will just draw a link to the tab-text.
-    /// On the top/bottom side the tabs will be embedded in the border.
-    #[default]
-    Attached,
+  /// Embedded tabs in the Block.
+  ///
+  /// If no block has been set, this will draw a block at the side
+  /// of the tabs.
+  ///
+  /// On the left/right side this will just draw a link to the tab-text.
+  /// On the top/bottom side the tabs will be embedded in the border.
+  #[default]
+  Attached,
 }
 
 /// A tabbed widget.
@@ -114,517 +114,542 @@ pub enum TabType {
 ///
 #[derive(Debug, Default, Clone)]
 pub struct Tabbed<'a> {
-    tab_type: TabType,
-    placement: TabPlacement,
-    closeable: bool,
-    tabs: Vec<Line<'a>>,
+  tab_type: TabType,
+  placement: TabPlacement,
+  closeable: bool,
+  tabs: Vec<Line<'a>>,
 
-    style: Style,
-    block: Option<Block<'a>>,
-    tab_style: Option<Style>,
-    hover_style: Option<Style>,
-    select_style: Option<Style>,
-    focus_style: Option<Style>,
+  style: Style,
+  block: Option<Block<'a>>,
+  tab_style: Option<Style>,
+  hover_style: Option<Style>,
+  select_style: Option<Style>,
+  focus_style: Option<Style>,
 }
 
 /// Widget for the Layout of the tabs.
 #[derive(Debug, Clone)]
 pub struct LayoutWidget<'a> {
-    tab: Rc<Tabbed<'a>>,
+  tab: Rc<Tabbed<'a>>,
 }
 
 /// Primary widget for rendering the Tabbed.
 #[derive(Debug, Clone)]
 pub struct TabbedWidget<'a> {
-    tab: Rc<Tabbed<'a>>,
+  tab: Rc<Tabbed<'a>>,
 }
 
 /// Combined Styles
 #[derive(Debug, Clone)]
 pub struct TabbedStyle {
-    pub style: Style,
-    pub block: Option<Block<'static>>,
-    pub border_style: Option<Style>,
-    pub title_style: Option<Style>,
-    pub tab: Option<Style>,
-    pub hover: Option<Style>,
-    pub select: Option<Style>,
-    pub focus: Option<Style>,
+  pub style: Style,
+  pub block: Option<Block<'static>>,
+  pub border_style: Option<Style>,
+  pub title_style: Option<Style>,
+  pub tab: Option<Style>,
+  pub hover: Option<Style>,
+  pub select: Option<Style>,
+  pub focus: Option<Style>,
 
-    pub tab_type: Option<TabType>,
-    pub placement: Option<TabPlacement>,
+  pub tab_type: Option<TabType>,
+  pub placement: Option<TabPlacement>,
 
-    pub non_exhaustive: NonExhaustive,
+  pub non_exhaustive: NonExhaustive,
 }
 
 /// State & event-handling.
 #[derive(Debug)]
 pub struct TabbedState {
-    /// Total area.
-    /// __readonly__. renewed for each render.
-    pub area: Rect,
-    /// Area for drawing the Block inside the tabs.
-    /// __readonly__. renewed for each render.
-    pub block_area: Rect,
-    /// Area used to render the content of the tab.
-    /// Use this area to render the current tab content.
-    /// __readonly__. renewed for each render.
-    pub widget_area: Rect,
+  /// Total area.
+  /// __readonly__. renewed for each render.
+  pub area: Rect,
+  /// Area for drawing the Block inside the tabs.
+  /// __readonly__. renewed for each render.
+  pub block_area: Rect,
+  /// Area used to render the content of the tab.
+  /// Use this area to render the current tab content.
+  /// __readonly__. renewed for each render.
+  pub widget_area: Rect,
 
-    /// Total area reserved for tabs.
-    /// __readonly__. renewed for each render.
-    pub tab_title_area: Rect,
-    /// Area of each tab.
-    /// __readonly__. renewed for each render.
-    pub tab_title_areas: Vec<Rect>,
-    /// Area for 'Close Tab' interaction.
-    /// __readonly__. renewed for each render.
-    pub tab_title_close_areas: Vec<Rect>,
+  /// Total area reserved for tabs.
+  /// __readonly__. renewed for each render.
+  pub tab_title_area: Rect,
+  /// Area of each tab.
+  /// __readonly__. renewed for each render.
+  pub tab_title_areas: Vec<Rect>,
+  /// Area for 'Close Tab' interaction.
+  /// __readonly__. renewed for each render.
+  pub tab_title_close_areas: Vec<Rect>,
 
-    /// Selected Tab, only ever is None if there are no tabs.
-    /// Otherwise, set to 0 on render.
-    /// __read+write___
-    pub selected: Option<usize>,
+  /// Selected Tab, only ever is None if there are no tabs.
+  /// Otherwise, set to 0 on render.
+  /// __read+write___
+  pub selected: Option<usize>,
 
-    /// Focus
-    /// __read+write__
-    pub focus: FocusFlag,
-    /// Mouse flags
-    /// __read+write__
-    pub mouse: MouseFlagsN,
+  /// Focus
+  /// __read+write__
+  pub focus: FocusFlag,
+  /// Mouse flags
+  /// __read+write__
+  pub mouse: MouseFlagsN,
 
-    /// Rendering is split into base-widget and menu-popup.
-    /// Relocate after rendering the popup.
-    relocate_popup: bool,
+  /// Rendering is split into base-widget and menu-popup.
+  /// Relocate after rendering the popup.
+  relocate_popup: bool,
 
-    pub non_exhaustive: NonExhaustive,
+  pub non_exhaustive: NonExhaustive,
 }
 
 impl<'a> Tabbed<'a> {
-    pub fn new() -> Self {
-        Self::default()
+  pub fn new() -> Self {
+    Self::default()
+  }
+
+  /// Tab type.
+  pub fn tab_type(mut self, tab_type: TabType) -> Self {
+    self.tab_type = tab_type;
+    self
+  }
+
+  /// Tab placement.
+  pub fn placement(mut self, placement: TabPlacement) -> Self {
+    self.placement = placement;
+    self
+  }
+
+  /// Tab-text.
+  pub fn tabs(
+    mut self,
+    tabs: impl IntoIterator<Item = impl Into<Line<'a>>>,
+  ) -> Self {
+    self.tabs = tabs.into_iter().map(|v| v.into()).collect::<Vec<_>>();
+    self
+  }
+
+  /// Closeable tabs?
+  ///
+  /// Renders a close symbol and reacts with [TabbedOutcome::Close].
+  pub fn closeable(mut self, closeable: bool) -> Self {
+    self.closeable = closeable;
+    self
+  }
+
+  /// Block
+  pub fn block(mut self, block: Block<'a>) -> Self {
+    self.block = Some(block);
+    self
+  }
+
+  /// Set combined styles.
+  pub fn styles(mut self, styles: TabbedStyle) -> Self {
+    self.style = styles.style;
+    if styles.block.is_some() {
+      self.block = styles.block;
     }
-
-    /// Tab type.
-    pub fn tab_type(mut self, tab_type: TabType) -> Self {
-        self.tab_type = tab_type;
-        self
+    if let Some(border_style) = styles.border_style {
+      self.block = self.block.map(|v| v.border_style(border_style));
     }
-
-    /// Tab placement.
-    pub fn placement(mut self, placement: TabPlacement) -> Self {
-        self.placement = placement;
-        self
+    if let Some(title_style) = styles.title_style {
+      self.block = self.block.map(|v| v.title_style(title_style));
     }
+    self.block = self.block.map(|v| v.style(self.style));
 
-    /// Tab-text.
-    pub fn tabs(mut self, tabs: impl IntoIterator<Item = impl Into<Line<'a>>>) -> Self {
-        self.tabs = tabs.into_iter().map(|v| v.into()).collect::<Vec<_>>();
-        self
+    if styles.tab.is_some() {
+      self.tab_style = styles.tab;
     }
-
-    /// Closeable tabs?
-    ///
-    /// Renders a close symbol and reacts with [TabbedOutcome::Close].
-    pub fn closeable(mut self, closeable: bool) -> Self {
-        self.closeable = closeable;
-        self
+    if styles.select.is_some() {
+      self.select_style = styles.select;
     }
-
-    /// Block
-    pub fn block(mut self, block: Block<'a>) -> Self {
-        self.block = Some(block);
-        self
+    if styles.hover.is_some() {
+      self.hover_style = styles.hover;
     }
-
-    /// Set combined styles.
-    pub fn styles(mut self, styles: TabbedStyle) -> Self {
-        self.style = styles.style;
-        if styles.block.is_some() {
-            self.block = styles.block;
-        }
-        if let Some(border_style) = styles.border_style {
-            self.block = self.block.map(|v| v.border_style(border_style));
-        }
-        if let Some(title_style) = styles.title_style {
-            self.block = self.block.map(|v| v.title_style(title_style));
-        }
-        self.block = self.block.map(|v| v.style(self.style));
-
-        if styles.tab.is_some() {
-            self.tab_style = styles.tab;
-        }
-        if styles.select.is_some() {
-            self.select_style = styles.select;
-        }
-        if styles.hover.is_some() {
-            self.hover_style = styles.hover;
-        }
-        if styles.focus.is_some() {
-            self.focus_style = styles.focus;
-        }
-        if let Some(tab_type) = styles.tab_type {
-            self.tab_type = tab_type;
-        }
-        if let Some(placement) = styles.placement {
-            self.placement = placement
-        }
-        self
+    if styles.focus.is_some() {
+      self.focus_style = styles.focus;
     }
-
-    /// Base style. Mostly for any background.
-    pub fn style(mut self, style: Style) -> Self {
-        self.style = style;
-        self.block = self.block.map(|v| v.style(style));
-        self
+    if let Some(tab_type) = styles.tab_type {
+      self.tab_type = tab_type;
     }
-
-    /// Style for the tab-text.
-    pub fn tab_style(mut self, style: Style) -> Self {
-        self.tab_style = Some(style);
-        self
+    if let Some(placement) = styles.placement {
+      self.placement = placement
     }
+    self
+  }
 
-    /// Style for hover.
-    pub fn hover_style(mut self, style: Style) -> Self {
-        self.hover_style = Some(style);
-        self
-    }
+  /// Base style. Mostly for any background.
+  pub fn style(mut self, style: Style) -> Self {
+    self.style = style;
+    self.block = self.block.map(|v| v.style(style));
+    self
+  }
 
-    /// Style for the selected tab.
-    pub fn select_style(mut self, style: Style) -> Self {
-        self.select_style = Some(style);
-        self
-    }
+  /// Style for the tab-text.
+  pub fn tab_style(mut self, style: Style) -> Self {
+    self.tab_style = Some(style);
+    self
+  }
 
-    /// Style for a focused tab.
-    pub fn focus_style(mut self, style: Style) -> Self {
-        self.focus_style = Some(style);
-        self
-    }
+  /// Style for hover.
+  pub fn hover_style(mut self, style: Style) -> Self {
+    self.hover_style = Some(style);
+    self
+  }
 
-    /// Constructs the widgets for rendering.
-    ///
-    /// Returns the LayoutWidget that must run first. It
-    /// doesn't actually render anything, it just calculates
-    /// the layout for the tab regions.
-    ///
-    /// Use [TabbedState::widget_area] to render the selected tab.
-    ///
-    /// The TabbedWidget actually renders the tabs.
-    /// Render it after you finished with the content.
-    pub fn into_widgets(self) -> (LayoutWidget<'a>, TabbedWidget<'a>) {
-        let rc = Rc::new(self);
-        (
-            LayoutWidget {
-                tab: rc.clone(), //
-            },
-            TabbedWidget {
+  /// Style for the selected tab.
+  pub fn select_style(mut self, style: Style) -> Self {
+    self.select_style = Some(style);
+    self
+  }
+
+  /// Style for a focused tab.
+  pub fn focus_style(mut self, style: Style) -> Self {
+    self.focus_style = Some(style);
+    self
+  }
+
+  /// Constructs the widgets for rendering.
+  ///
+  /// Returns the LayoutWidget that must run first. It
+  /// doesn't actually render anything, it just calculates
+  /// the layout for the tab regions.
+  ///
+  /// Use [TabbedState::widget_area] to render the selected tab.
+  ///
+  /// The TabbedWidget actually renders the tabs.
+  /// Render it after you finished with the content.
+  pub fn into_widgets(self) -> (LayoutWidget<'a>, TabbedWidget<'a>) {
+    let rc = Rc::new(self);
+    (
+      LayoutWidget {
+        tab: rc.clone(), //
+      },
+      TabbedWidget {
                 tab:rc, //
             },
-        )
-    }
+    )
+  }
 }
 
 impl Default for TabbedStyle {
-    fn default() -> Self {
-        Self {
-            style: Default::default(),
-            tab: None,
-            hover: None,
-            select: None,
-            focus: None,
-            tab_type: None,
-            placement: None,
-            block: None,
-            border_style: None,
-            title_style: None,
-            non_exhaustive: NonExhaustive,
-        }
+  fn default() -> Self {
+    Self {
+      style: Default::default(),
+      tab: None,
+      hover: None,
+      select: None,
+      focus: None,
+      tab_type: None,
+      placement: None,
+      block: None,
+      border_style: None,
+      title_style: None,
+      non_exhaustive: NonExhaustive,
     }
+  }
 }
 
 impl StatefulWidget for &Tabbed<'_> {
-    type State = TabbedState;
+  type State = TabbedState;
 
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        layout(self, area, state);
-        render(self, buf, state);
-        state.relocate_popup = false;
-    }
+  fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+    layout(self, area, state);
+    render(self, buf, state);
+    state.relocate_popup = false;
+  }
 }
 
 impl StatefulWidget for Tabbed<'_> {
-    type State = TabbedState;
+  type State = TabbedState;
 
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        layout(&self, area, state);
-        render(&self, buf, state);
-        state.relocate_popup = false;
-    }
+  fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+    layout(&self, area, state);
+    render(&self, buf, state);
+    state.relocate_popup = false;
+  }
 }
 
 impl<'a> StatefulWidget for &LayoutWidget<'a> {
-    type State = TabbedState;
+  type State = TabbedState;
 
-    fn render(self, area: Rect, _buf: &mut Buffer, state: &mut Self::State) {
-        layout(self.tab.as_ref(), area, state);
-    }
+  fn render(self, area: Rect, _buf: &mut Buffer, state: &mut Self::State) {
+    layout(self.tab.as_ref(), area, state);
+  }
 }
 
 impl<'a> StatefulWidget for LayoutWidget<'a> {
-    type State = TabbedState;
+  type State = TabbedState;
 
-    fn render(self, area: Rect, _buf: &mut Buffer, state: &mut Self::State) {
-        layout(self.tab.as_ref(), area, state);
-    }
+  fn render(self, area: Rect, _buf: &mut Buffer, state: &mut Self::State) {
+    layout(self.tab.as_ref(), area, state);
+  }
 }
 
 fn layout(tabbed: &Tabbed<'_>, area: Rect, state: &mut TabbedState) {
-    state.relocate_popup = true;
-    if tabbed.tabs.is_empty() {
-        state.selected = None;
-    } else {
-        if state.selected.is_none() {
-            state.selected = Some(0);
-        }
+  state.relocate_popup = true;
+  if tabbed.tabs.is_empty() {
+    state.selected = None;
+  } else {
+    if state.selected.is_none() {
+      state.selected = Some(0);
     }
+  }
 
-    match tabbed.tab_type {
-        TabType::Glued => {
-            GluedTabs.layout(area, tabbed, state);
-        }
-        TabType::Attached => {
-            AttachedTabs.layout(area, tabbed, state);
-        }
+  match tabbed.tab_type {
+    TabType::Glued => {
+      GluedTabs.layout(area, tabbed, state);
     }
+    TabType::Attached => {
+      AttachedTabs.layout(area, tabbed, state);
+    }
+  }
 }
 
 impl<'a> StatefulWidget for &TabbedWidget<'a> {
-    type State = TabbedState;
+  type State = TabbedState;
 
-    fn render(self, _area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        render(self.tab.as_ref(), buf, state);
-    }
+  fn render(self, _area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+    render(self.tab.as_ref(), buf, state);
+  }
 }
 
 impl<'a> StatefulWidget for TabbedWidget<'a> {
-    type State = TabbedState;
+  type State = TabbedState;
 
-    fn render(self, _area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        render(self.tab.as_ref(), buf, state);
-    }
+  fn render(self, _area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+    render(self.tab.as_ref(), buf, state);
+  }
 }
 
 fn render(tabbed: &Tabbed<'_>, buf: &mut Buffer, state: &mut TabbedState) {
-    if tabbed.tabs.is_empty() {
-        state.selected = None;
-    } else {
-        if state.selected.is_none() {
-            state.selected = Some(0);
-        }
+  if tabbed.tabs.is_empty() {
+    state.selected = None;
+  } else {
+    if state.selected.is_none() {
+      state.selected = Some(0);
     }
+  }
 
-    match tabbed.tab_type {
-        TabType::Glued => {
-            GluedTabs.render(buf, tabbed, state);
-        }
-        TabType::Attached => {
-            AttachedTabs.render(buf, tabbed, state);
-        }
+  match tabbed.tab_type {
+    TabType::Glued => {
+      GluedTabs.render(buf, tabbed, state);
     }
+    TabType::Attached => {
+      AttachedTabs.render(buf, tabbed, state);
+    }
+  }
 }
 
 impl Default for TabbedState {
-    fn default() -> Self {
-        Self {
-            area: Default::default(),
-            block_area: Default::default(),
-            widget_area: Default::default(),
-            tab_title_area: Default::default(),
-            tab_title_areas: Default::default(),
-            tab_title_close_areas: Default::default(),
-            selected: Default::default(),
-            focus: Default::default(),
-            mouse: Default::default(),
-            relocate_popup: Default::default(),
-            non_exhaustive: NonExhaustive,
-        }
+  fn default() -> Self {
+    Self {
+      area: Default::default(),
+      block_area: Default::default(),
+      widget_area: Default::default(),
+      tab_title_area: Default::default(),
+      tab_title_areas: Default::default(),
+      tab_title_close_areas: Default::default(),
+      selected: Default::default(),
+      focus: Default::default(),
+      mouse: Default::default(),
+      relocate_popup: Default::default(),
+      non_exhaustive: NonExhaustive,
     }
+  }
 }
 
 impl Clone for TabbedState {
-    fn clone(&self) -> Self {
-        Self {
-            area: self.area,
-            block_area: self.block_area,
-            widget_area: self.widget_area,
-            tab_title_area: self.tab_title_area,
-            tab_title_areas: self.tab_title_areas.clone(),
-            tab_title_close_areas: self.tab_title_close_areas.clone(),
-            selected: self.selected,
-            focus: self.focus.new_instance(),
-            mouse: Default::default(),
-            relocate_popup: self.relocate_popup,
-            non_exhaustive: NonExhaustive,
-        }
+  fn clone(&self) -> Self {
+    Self {
+      area: self.area,
+      block_area: self.block_area,
+      widget_area: self.widget_area,
+      tab_title_area: self.tab_title_area,
+      tab_title_areas: self.tab_title_areas.clone(),
+      tab_title_close_areas: self.tab_title_close_areas.clone(),
+      selected: self.selected,
+      focus: self.focus.new_instance(),
+      mouse: Default::default(),
+      relocate_popup: self.relocate_popup,
+      non_exhaustive: NonExhaustive,
     }
+  }
 }
 
 impl HasFocus for TabbedState {
-    fn build(&self, builder: &mut FocusBuilder) {
-        builder.leaf_widget(self);
-    }
+  fn build(&self, builder: &mut FocusBuilder) {
+    builder.leaf_widget(self);
+  }
 
-    fn build_nav(&self, navigable: Navigation, builder: &mut FocusBuilder) {
-        if !matches!(navigable, Navigation::None | Navigation::Leave) {
-            builder.widget_with_flags(
-                self.focus(),
-                union_all_non_empty(&self.tab_title_areas),
-                self.area_z(),
-                navigable,
-            );
-        } else {
-            self.build(builder);
-        }
+  fn build_nav(&self, navigable: Navigation, builder: &mut FocusBuilder) {
+    if !matches!(navigable, Navigation::None | Navigation::Leave) {
+      builder.widget_with_flags(
+        self.focus(),
+        union_all_non_empty(&self.tab_title_areas),
+        self.area_z(),
+        navigable,
+      );
+    } else {
+      self.build(builder);
     }
+  }
 
-    fn focus(&self) -> FocusFlag {
-        self.focus.clone()
-    }
+  fn focus(&self) -> FocusFlag {
+    self.focus.clone()
+  }
 
-    fn area(&self) -> Rect {
-        Rect::default()
-    }
+  fn area(&self) -> Rect {
+    Rect::default()
+  }
 
-    fn navigable(&self) -> Navigation {
-        Navigation::Leave
-    }
+  fn navigable(&self) -> Navigation {
+    Navigation::Leave
+  }
 }
 
 impl RelocatableState for TabbedState {
-    fn relocate(&mut self, shift: (i16, i16), clip: Rect) {
-        if !self.relocate_popup {
-            self.area = relocate_area(self.area, shift, clip);
-            self.block_area = relocate_area(self.block_area, shift, clip);
-            self.widget_area = relocate_area(self.widget_area, shift, clip);
-            self.tab_title_area = relocate_area(self.tab_title_area, shift, clip);
-            relocate_areas(self.tab_title_areas.as_mut(), shift, clip);
-            relocate_areas(self.tab_title_close_areas.as_mut(), shift, clip);
-        }
+  fn relocate(&mut self, shift: (i16, i16), clip: Rect) {
+    if !self.relocate_popup {
+      self.area = relocate_area(self.area, shift, clip);
+      self.block_area = relocate_area(self.block_area, shift, clip);
+      self.widget_area = relocate_area(self.widget_area, shift, clip);
+      self.tab_title_area = relocate_area(self.tab_title_area, shift, clip);
+      relocate_areas(self.tab_title_areas.as_mut(), shift, clip);
+      relocate_areas(self.tab_title_close_areas.as_mut(), shift, clip);
     }
+  }
 
-    fn relocate_popup(&mut self, shift: (i16, i16), clip: Rect) {
-        if self.relocate_popup {
-            self.relocate_popup = false;
-            self.area = relocate_area(self.area, shift, clip);
-            self.block_area = relocate_area(self.block_area, shift, clip);
-            self.widget_area = relocate_area(self.widget_area, shift, clip);
-            self.tab_title_area = relocate_area(self.tab_title_area, shift, clip);
-            relocate_areas(self.tab_title_areas.as_mut(), shift, clip);
-            relocate_areas(self.tab_title_close_areas.as_mut(), shift, clip);
-        }
+  fn relocate_popup(&mut self, shift: (i16, i16), clip: Rect) {
+    if self.relocate_popup {
+      self.relocate_popup = false;
+      self.area = relocate_area(self.area, shift, clip);
+      self.block_area = relocate_area(self.block_area, shift, clip);
+      self.widget_area = relocate_area(self.widget_area, shift, clip);
+      self.tab_title_area = relocate_area(self.tab_title_area, shift, clip);
+      relocate_areas(self.tab_title_areas.as_mut(), shift, clip);
+      relocate_areas(self.tab_title_close_areas.as_mut(), shift, clip);
     }
+  }
 }
 
 impl TabbedState {
-    /// New initial state.
-    pub fn new() -> Self {
-        Default::default()
+  /// New initial state.
+  pub fn new() -> Self {
+    Default::default()
+  }
+
+  /// State with a focus name.
+  pub fn named(name: &str) -> Self {
+    let mut z = Self::default();
+    z.focus = z.focus.with_name(name);
+    z
+  }
+
+  pub fn selected(&self) -> Option<usize> {
+    self.selected
+  }
+
+  pub fn select(&mut self, selected: Option<usize>) {
+    self.selected = selected;
+  }
+
+  /// Selects the next tab. Stops at the end.
+  pub fn next_tab(&mut self) -> bool {
+    let old_selected = self.selected;
+
+    if let Some(selected) = self.selected() {
+      self.selected = Some(min(
+        selected + 1,
+        self.tab_title_areas.len().saturating_sub(1),
+      ));
     }
 
-    /// State with a focus name.
-    pub fn named(name: &str) -> Self {
-        let mut z = Self::default();
-        z.focus = z.focus.with_name(name);
-        z
+    old_selected != self.selected
+  }
+
+  /// Selects the previous tab. Stops at the end.
+  pub fn prev_tab(&mut self) -> bool {
+    let old_selected = self.selected;
+
+    if let Some(selected) = self.selected() {
+      if selected > 0 {
+        self.selected = Some(selected - 1);
+      }
     }
 
-    pub fn selected(&self) -> Option<usize> {
-        self.selected
-    }
-
-    pub fn select(&mut self, selected: Option<usize>) {
-        self.selected = selected;
-    }
-
-    /// Selects the next tab. Stops at the end.
-    pub fn next_tab(&mut self) -> bool {
-        let old_selected = self.selected;
-
-        if let Some(selected) = self.selected() {
-            self.selected = Some(min(
-                selected + 1,
-                self.tab_title_areas.len().saturating_sub(1),
-            ));
-        }
-
-        old_selected != self.selected
-    }
-
-    /// Selects the previous tab. Stops at the end.
-    pub fn prev_tab(&mut self) -> bool {
-        let old_selected = self.selected;
-
-        if let Some(selected) = self.selected() {
-            if selected > 0 {
-                self.selected = Some(selected - 1);
-            }
-        }
-
-        old_selected != self.selected
-    }
+    old_selected != self.selected
+  }
 }
 
 /// Handle the regular events for Tabbed.
-impl HandleEvent<crossterm::event::Event, Regular, TabbedOutcome> for TabbedState {
-    fn handle(&mut self, event: &crossterm::event::Event, _qualifier: Regular) -> TabbedOutcome {
-        if self.is_focused() {
-            event_flow!(
-                return match event {
-                    ct_event!(keycode press Left) => self.prev_tab().into(),
-                    ct_event!(keycode press Right) => self.next_tab().into(),
-                    ct_event!(keycode press Up) => self.prev_tab().into(),
-                    ct_event!(keycode press Down) => self.next_tab().into(),
-                    _ => TabbedOutcome::Continue,
-                }
-            );
+impl HandleEvent<crossterm::event::Event, Regular, TabbedOutcome>
+  for TabbedState
+{
+  fn handle(
+    &mut self,
+    event: &crossterm::event::Event,
+    _qualifier: Regular,
+  ) -> TabbedOutcome {
+    if self.is_focused() {
+      event_flow!(
+        return match event {
+          ct_event!(keycode press Left) => self.prev_tab().into(),
+          ct_event!(keycode press Right) => self.next_tab().into(),
+          ct_event!(keycode press Up) => self.prev_tab().into(),
+          ct_event!(keycode press Down) => self.next_tab().into(),
+          _ => TabbedOutcome::Continue,
         }
-
-        self.handle(event, MouseOnly)
+      );
     }
+
+    self.handle(event, MouseOnly)
+  }
 }
 
-impl HandleEvent<crossterm::event::Event, MouseOnly, TabbedOutcome> for TabbedState {
-    fn handle(&mut self, event: &crossterm::event::Event, _qualifier: MouseOnly) -> TabbedOutcome {
-        match event {
-            ct_event!(mouse any for e) if self.mouse.hover(&self.tab_title_close_areas, e) => {
-                TabbedOutcome::Changed
-            }
-            ct_event!(mouse any for e) if self.mouse.drag(&[self.tab_title_area], e) => {
-                if let Some(n) = self.mouse.item_at(&self.tab_title_areas, e.column, e.row) {
-                    self.select(Some(n));
-                    TabbedOutcome::Select(n)
-                } else {
-                    TabbedOutcome::Unchanged
-                }
-            }
-            ct_event!(mouse down Left for x, y)
-                if self.tab_title_area.contains((*x, *y).into()) =>
-            {
-                if let Some(sel) = self.mouse.item_at(&self.tab_title_close_areas, *x, *y) {
-                    TabbedOutcome::Close(sel)
-                } else if let Some(sel) = self.mouse.item_at(&self.tab_title_areas, *x, *y) {
-                    self.select(Some(sel));
-                    TabbedOutcome::Select(sel)
-                } else {
-                    TabbedOutcome::Continue
-                }
-            }
-
-            _ => TabbedOutcome::Continue,
+impl HandleEvent<crossterm::event::Event, MouseOnly, TabbedOutcome>
+  for TabbedState
+{
+  fn handle(
+    &mut self,
+    event: &crossterm::event::Event,
+    _qualifier: MouseOnly,
+  ) -> TabbedOutcome {
+    match event {
+      ct_event!(mouse any for e)
+        if self.mouse.hover(&self.tab_title_close_areas, e) =>
+      {
+        TabbedOutcome::Changed
+      }
+      ct_event!(mouse any for e)
+        if self.mouse.drag(&[self.tab_title_area], e) =>
+      {
+        if let Some(n) =
+          self.mouse.item_at(&self.tab_title_areas, e.column, e.row)
+        {
+          self.select(Some(n));
+          TabbedOutcome::Select(n)
+        } else {
+          TabbedOutcome::Unchanged
         }
+      }
+      ct_event!(mouse down Left for x, y)
+        if self.tab_title_area.contains((*x, *y).into()) =>
+      {
+        if let Some(sel) =
+          self.mouse.item_at(&self.tab_title_close_areas, *x, *y)
+        {
+          TabbedOutcome::Close(sel)
+        } else if let Some(sel) =
+          self.mouse.item_at(&self.tab_title_areas, *x, *y)
+        {
+          self.select(Some(sel));
+          TabbedOutcome::Select(sel)
+        } else {
+          TabbedOutcome::Continue
+        }
+      }
+
+      _ => TabbedOutcome::Continue,
     }
+  }
 }
 
 /// The design space for tabs is too big to capture with a handful of parameters.
@@ -632,39 +657,39 @@ impl HandleEvent<crossterm::event::Event, MouseOnly, TabbedOutcome> for TabbedSt
 /// This trait splits off the layout and rendering of the actual tabs from
 /// the general properties and behaviour of tabs.
 trait TabWidget: Debug {
-    /// Calculate the layout for the tabs.
-    fn layout(
-        &self, //
-        area: Rect,
-        tabbed: &Tabbed<'_>,
-        state: &mut TabbedState,
-    );
+  /// Calculate the layout for the tabs.
+  fn layout(
+    &self, //
+    area: Rect,
+    tabbed: &Tabbed<'_>,
+    state: &mut TabbedState,
+  );
 
-    /// Render the tabs.
-    fn render(
-        &self, //
-        buf: &mut Buffer,
-        tabbed: &Tabbed<'_>,
-        state: &mut TabbedState,
-    );
+  /// Render the tabs.
+  fn render(
+    &self, //
+    buf: &mut Buffer,
+    tabbed: &Tabbed<'_>,
+    state: &mut TabbedState,
+  );
 }
 
 /// Handle all events.
 /// Text events are only processed if focus is true.
 /// Mouse events are processed if they are in range.
 pub fn handle_events(
-    state: &mut TabbedState,
-    focus: bool,
-    event: &crossterm::event::Event,
+  state: &mut TabbedState,
+  focus: bool,
+  event: &crossterm::event::Event,
 ) -> TabbedOutcome {
-    state.focus.set(focus);
-    HandleEvent::handle(state, event, Regular)
+  state.focus.set(focus);
+  HandleEvent::handle(state, event, Regular)
 }
 
 /// Handle only mouse-events.
 pub fn handle_mouse_events(
-    state: &mut TabbedState,
-    event: &crossterm::event::Event,
+  state: &mut TabbedState,
+  event: &crossterm::event::Event,
 ) -> TabbedOutcome {
-    HandleEvent::handle(state, event, MouseOnly)
+  HandleEvent::handle(state, event, MouseOnly)
 }

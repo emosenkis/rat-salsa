@@ -38,61 +38,61 @@ pub use style::*;
 /// Selection model for a calendar.
 #[allow(clippy::len_without_is_empty)]
 pub trait CalendarSelection {
-    /// Select day count.
-    fn count(&self) -> usize;
+  /// Select day count.
+  fn count(&self) -> usize;
 
-    /// Is the given day selected.
-    fn is_selected(&self, date: NaiveDate) -> bool;
+  /// Is the given day selected.
+  fn is_selected(&self, date: NaiveDate) -> bool;
 
-    /// Selection lead, or the sole selected day.
-    fn lead_selection(&self) -> Option<NaiveDate>;
+  /// Selection lead, or the sole selected day.
+  fn lead_selection(&self) -> Option<NaiveDate>;
 }
 
 pub mod selection {
-    use crate::calendar::CalendarSelection;
-    use chrono::NaiveDate;
-    use std::cell::RefCell;
-    use std::rc::Rc;
+  use crate::calendar::CalendarSelection;
+  use chrono::NaiveDate;
+  use std::cell::RefCell;
+  use std::rc::Rc;
 
-    pub use super::no_selection::*;
-    pub use super::range_selection::*;
-    pub use super::single_selection::*;
+  pub use super::no_selection::*;
+  pub use super::range_selection::*;
+  pub use super::single_selection::*;
 
-    impl<T: CalendarSelection> CalendarSelection for Rc<RefCell<T>> {
-        fn count(&self) -> usize {
-            self.borrow().count()
-        }
-
-        fn is_selected(&self, date: NaiveDate) -> bool {
-            self.borrow().is_selected(date)
-        }
-
-        fn lead_selection(&self) -> Option<NaiveDate> {
-            self.borrow().lead_selection()
-        }
+  impl<T: CalendarSelection> CalendarSelection for Rc<RefCell<T>> {
+    fn count(&self) -> usize {
+      self.borrow().count()
     }
+
+    fn is_selected(&self, date: NaiveDate) -> bool {
+      self.borrow().is_selected(date)
+    }
+
+    fn lead_selection(&self) -> Option<NaiveDate> {
+      self.borrow().lead_selection()
+    }
+  }
 }
 
 fn is_first_day_of_month(date: NaiveDate) -> bool {
-    date.day() == 1
+  date.day() == 1
 }
 
 fn is_last_day_of_month(date: NaiveDate) -> bool {
-    date.month() != (date + Days::new(1)).month()
+  date.month() != (date + Days::new(1)).month()
 }
 
 fn first_day_of_month(date: NaiveDate) -> NaiveDate {
-    date.with_day(1).expect("date")
+  date.with_day(1).expect("date")
 }
 
 fn last_day_of_month(date: NaiveDate) -> NaiveDate {
-    date.with_day(1).expect("date") + Months::new(1) - Days::new(1)
+  date.with_day(1).expect("date") + Months::new(1) - Days::new(1)
 }
 
 fn is_same_month(start: NaiveDate, end: NaiveDate) -> bool {
-    start.year() == end.year() && start.month() == end.month()
+  start.year() == end.year() && start.month() == end.month()
 }
 
 fn is_same_week(start: NaiveDate, end: NaiveDate) -> bool {
-    start.iso_week() == end.iso_week()
+  start.iso_week() == end.iso_week()
 }

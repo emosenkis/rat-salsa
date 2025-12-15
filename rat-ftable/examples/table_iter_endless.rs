@@ -26,129 +26,135 @@ mod data;
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        table: Default::default(),
-    };
+  let mut state = State {
+    table: Default::default(),
+  };
 
-    run_ui("iter_endless", mock_init, event, render, &mut state)
+  run_ui("iter_endless", mock_init, event, render, &mut state)
 }
 
 struct State {
-    pub(crate) table: TableState<RowSelection>,
+  pub(crate) table: TableState<RowSelection>,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l0 = Layout::horizontal([Constraint::Percentage(61)])
-        .flex(Flex::Center)
-        .split(area);
+  let l0 = Layout::horizontal([Constraint::Percentage(61)])
+    .flex(Flex::Center)
+    .split(area);
 
-    struct Count(u128);
+  struct Count(u128);
 
-    impl Iterator for Count {
-        type Item = u128;
+  impl Iterator for Count {
+    type Item = u128;
 
-        fn next(&mut self) -> Option<Self::Item> {
-            self.nth(0)
-        }
-
-        // implementing nth is essential here otherwise rendering once
-        // every 60 years is a bit too long.
-        fn nth(&mut self, n: usize) -> Option<Self::Item> {
-            self.0 = self.0.saturating_add(n as u128).saturating_add(1);
-            Some(self.0)
-        }
+    fn next(&mut self) -> Option<Self::Item> {
+      self.nth(0)
     }
 
-    struct DataIter {
-        iter: Count,
-        item: u128,
+    // implementing nth is essential here otherwise rendering once
+    // every 60 years is a bit too long.
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+      self.0 = self.0.saturating_add(n as u128).saturating_add(1);
+      Some(self.0)
+    }
+  }
+
+  struct DataIter {
+    iter: Count,
+    item: u128,
+  }
+
+  impl<'a> TableDataIter<'a> for DataIter {
+    fn rows(&self) -> Option<usize> {
+      // unknown number of rows
+      None
     }
 
-    impl<'a> TableDataIter<'a> for DataIter {
-        fn rows(&self) -> Option<usize> {
-            // unknown number of rows
-            None
-        }
-
-        fn nth(&mut self, n: usize) -> bool {
-            if let Some(v) = self.iter.nth(n) {
-                self.item = v;
-                true
-            } else {
-                false
-            }
-        }
-
-        fn render_cell(&self, _ctx: &TableContext, column: usize, area: Rect, buf: &mut Buffer) {
-            match column {
-                0 => {
-                    Span::from(self.item.to_string()).render(area, buf);
-                }
-                _ => {}
-            };
-        }
+    fn nth(&mut self, n: usize) -> bool {
+      if let Some(v) = self.iter.nth(n) {
+        self.item = v;
+        true
+      } else {
+        false
+      }
     }
 
-    Table::default()
-        .iter(DataIter {
-            iter: Count(0),
-            item: 0,
-        })
-        .no_row_count(true) // don't try to count the nr of rows.
-        .widths([Constraint::Length(21)])
-        .column_spacing(1)
-        .header(Row::new([Cell::from("Nr")]))
-        .footer(Row::new(["..."]))
-        .block(
-            Block::bordered()
-                .border_type(block::BorderType::Rounded)
-                .title("huge-iterator"),
-        )
-        .vscroll(Scroll::new())
-        .flex(Flex::Center)
-        .styles(table(&ctx.theme))
-        .select_row_style(Some(ctx.theme.p.gray(3)))
-        .render(l0[0], buf, &mut state.table);
-    Ok(())
+    fn render_cell(
+      &self,
+      _ctx: &TableContext,
+      column: usize,
+      area: Rect,
+      buf: &mut Buffer,
+    ) {
+      match column {
+        0 => {
+          Span::from(self.item.to_string()).render(area, buf);
+        }
+        _ => {}
+      };
+    }
+  }
+
+  Table::default()
+    .iter(DataIter {
+      iter: Count(0),
+      item: 0,
+    })
+    .no_row_count(true) // don't try to count the nr of rows.
+    .widths([Constraint::Length(21)])
+    .column_spacing(1)
+    .header(Row::new([Cell::from("Nr")]))
+    .footer(Row::new(["..."]))
+    .block(
+      Block::bordered()
+        .border_type(block::BorderType::Rounded)
+        .title("huge-iterator"),
+    )
+    .vscroll(Scroll::new())
+    .flex(Flex::Center)
+    .styles(table(&ctx.theme))
+    .select_row_style(Some(ctx.theme.p.gray(3)))
+    .render(l0[0], buf, &mut state.table);
+  Ok(())
 }
 
 fn table(th: &SalsaTheme) -> rat_ftable::TableStyle {
-    rat_ftable::TableStyle {
-        style: th.style(Style::CONTAINER_BASE),
-        select_row: Some(th.style(Style::SELECT)),
-        show_row_focus: true,
-        focus_style: Some(th.style(Style::FOCUS)),
-        border_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        scroll: Some(scroll(th)),
-        header: Some(th.style(Style::HEADER)),
-        footer: Some(th.style(Style::FOOTER)),
-        ..Default::default()
-    }
+  rat_ftable::TableStyle {
+    style: th.style(Style::CONTAINER_BASE),
+    select_row: Some(th.style(Style::SELECT)),
+    show_row_focus: true,
+    focus_style: Some(th.style(Style::FOCUS)),
+    border_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    scroll: Some(scroll(th)),
+    header: Some(th.style(Style::HEADER)),
+    footer: Some(th.style(Style::FOOTER)),
+    ..Default::default()
+  }
 }
 
 fn scroll(th: &SalsaTheme) -> ScrollStyle {
-    ScrollStyle {
-        thumb_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        track_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        min_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        begin_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
-        end_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
-        ..Default::default()
-    }
+  ScrollStyle {
+    thumb_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    track_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    min_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    begin_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
+    end_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
+    ..Default::default()
+  }
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    let r = rowselection::handle_events(&mut state.table, true, event);
-    Ok(r.into())
+  let r = rowselection::handle_events(&mut state.table, true, event);
+  Ok(r.into())
 }

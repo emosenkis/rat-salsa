@@ -15,112 +15,113 @@ use ratatui::widgets::{StatefulWidget, Wrap};
 
 #[derive(Debug)]
 pub struct SampleReadability {
-    pub bg_color: ChoiceState<ColorIdx>,
-    pub fg_color: ChoiceState<ColorIdx>,
-    pub high_contrast: CheckboxState,
-    pub para: ParagraphState,
+  pub bg_color: ChoiceState<ColorIdx>,
+  pub fg_color: ChoiceState<ColorIdx>,
+  pub high_contrast: CheckboxState,
+  pub para: ParagraphState,
 }
 
 impl SampleReadability {
-    pub fn new() -> Self {
-        Self::default()
-    }
+  pub fn new() -> Self {
+    Self::default()
+  }
 }
 
 impl Default for SampleReadability {
-    fn default() -> Self {
-        let mut z = Self {
-            bg_color: Default::default(),
-            fg_color: Default::default(),
-            high_contrast: Default::default(),
-            para: Default::default(),
-        };
-        z.bg_color.set_value(ColorIdx(Colors::Gray, 0));
-        z.fg_color.set_value(ColorIdx(Colors::None, 0));
-        z
-    }
+  fn default() -> Self {
+    let mut z = Self {
+      bg_color: Default::default(),
+      fg_color: Default::default(),
+      high_contrast: Default::default(),
+      para: Default::default(),
+    };
+    z.bg_color.set_value(ColorIdx(Colors::Gray, 0));
+    z.fg_color.set_value(ColorIdx(Colors::None, 0));
+    z
+  }
 }
 
 impl HasFocus for SampleReadability {
-    fn build(&self, builder: &mut FocusBuilder) {
-        builder.widget(&self.bg_color);
-        builder.widget(&self.fg_color);
-        builder.widget(&self.high_contrast);
-        builder.widget(&self.para);
-    }
+  fn build(&self, builder: &mut FocusBuilder) {
+    builder.widget(&self.bg_color);
+    builder.widget(&self.fg_color);
+    builder.widget(&self.high_contrast);
+    builder.widget(&self.para);
+  }
 
-    fn focus(&self) -> FocusFlag {
-        unimplemented!("not available")
-    }
+  fn focus(&self) -> FocusFlag {
+    unimplemented!("not available")
+  }
 
-    fn area(&self) -> Rect {
-        unimplemented!("not available")
-    }
+  fn area(&self) -> Rect {
+    unimplemented!("not available")
+  }
 }
 
 impl HasScreenCursor for SampleReadability {
-    fn screen_cursor(&self) -> Option<(u16, u16)> {
-        None
-    }
+  fn screen_cursor(&self) -> Option<(u16, u16)> {
+    None
+  }
 }
 
 pub fn render(
-    area: Rect,
-    buf: &mut Buffer,
-    state: &mut SampleReadability,
-    ctx: &mut Global,
+  area: Rect,
+  buf: &mut Buffer,
+  state: &mut SampleReadability,
+  ctx: &mut Global,
 ) -> Result<(), Error> {
-    let l0 = Layout::vertical([
-        Constraint::Length(1),
-        Constraint::Length(1),
-        Constraint::Length(1),
-        Constraint::Fill(1),
-    ])
-    .split(area);
-    let l1 = Layout::horizontal([
-        Constraint::Fill(1), //
-        Constraint::Fill(1), //
-        Constraint::Fill(1),
-    ])
-    .spacing(1)
-    .split(l0[1]);
+  let l0 = Layout::vertical([
+    Constraint::Length(1),
+    Constraint::Length(1),
+    Constraint::Length(1),
+    Constraint::Fill(1),
+  ])
+  .split(area);
+  let l1 = Layout::horizontal([
+    Constraint::Fill(1), //
+    Constraint::Fill(1), //
+    Constraint::Fill(1),
+  ])
+  .spacing(1)
+  .split(l0[1]);
 
-    let pal_choice = crate::proc::pal_choice(ctx.show_theme.p.clone());
-    let (colors, bg_colors_popup) = Choice::new()
-        .items(pal_choice.clone())
-        .select_marker('*')
-        .styles(ctx.show_theme.style(WidgetStyle::CHOICE))
-        .into_widgets();
-    colors.render(l1[0], buf, &mut state.bg_color);
+  let pal_choice = crate::proc::pal_choice(ctx.show_theme.p.clone());
+  let (colors, bg_colors_popup) = Choice::new()
+    .items(pal_choice.clone())
+    .select_marker('*')
+    .styles(ctx.show_theme.style(WidgetStyle::CHOICE))
+    .into_widgets();
+  colors.render(l1[0], buf, &mut state.bg_color);
 
-    let (colors, fg_colors_popup) = Choice::new()
-        .items(pal_choice)
-        .select_marker('*')
-        .styles(ctx.show_theme.style(WidgetStyle::CHOICE))
-        .into_widgets();
-    colors.render(l1[1], buf, &mut state.fg_color);
+  let (colors, fg_colors_popup) = Choice::new()
+    .items(pal_choice)
+    .select_marker('*')
+    .styles(ctx.show_theme.style(WidgetStyle::CHOICE))
+    .into_widgets();
+  colors.render(l1[1], buf, &mut state.fg_color);
 
-    Checkbox::new()
-        .styles(ctx.show_theme.style(WidgetStyle::CHECKBOX))
-        .text("+Contrast")
-        .render(l1[2], buf, &mut state.high_contrast);
+  Checkbox::new()
+    .styles(ctx.show_theme.style(WidgetStyle::CHECKBOX))
+    .text("+Contrast")
+    .render(l1[2], buf, &mut state.high_contrast);
 
-    let sel_bg = state.bg_color.value();
-    let sel_fg = state.fg_color.value();
-    let high_contrast = state.high_contrast.value();
-    let text_style = if sel_fg.0 == Colors::None {
-        if high_contrast {
-            ctx.show_theme.p.high_style(sel_bg.0, sel_bg.1)
-        } else {
-            ctx.show_theme.p.style(sel_bg.0, sel_bg.1)
-        }
+  let sel_bg = state.bg_color.value();
+  let sel_fg = state.fg_color.value();
+  let high_contrast = state.high_contrast.value();
+  let text_style = if sel_fg.0 == Colors::None {
+    if high_contrast {
+      ctx.show_theme.p.high_style(sel_bg.0, sel_bg.1)
     } else {
-        ctx.show_theme
-            .p
-            .fg_bg_style(sel_fg.0, sel_fg.1, sel_bg.0, sel_bg.1)
-    };
+      ctx.show_theme.p.style(sel_bg.0, sel_bg.1)
+    }
+  } else {
+    ctx
+      .show_theme
+      .p
+      .fg_bg_style(sel_fg.0, sel_fg.1, sel_bg.0, sel_bg.1)
+  };
 
-    Paragraph::new(
+  Paragraph::new(
             "
 The __Paris Peace Accords__, officially the Agreement on Ending the War and Restoring Peace in Viet Nam, was a peace agreement signed on January 27, 1973, to establish peace in Vietnam and end the Vietnam War. The agreement was signed by the governments of the Democratic Republic of Vietnam (North Vietnam), the Republic of Vietnam (South Vietnam), the United States, and the Provisional Revolutionary Government of the Republic of South Vietnam (representing South Vietnamese communists).
 
@@ -133,21 +134,21 @@ The Paris Peace Accords removed the remaining United States forces, and fighting
             .wrap(Wrap { trim: false })
             .render(l0[3], buf, &mut state.para);
 
-    // don't forget the popup ...
-    bg_colors_popup.render(l1[0], buf, &mut state.bg_color);
-    fg_colors_popup.render(l1[1], buf, &mut state.fg_color);
+  // don't forget the popup ...
+  bg_colors_popup.render(l1[0], buf, &mut state.bg_color);
+  fg_colors_popup.render(l1[1], buf, &mut state.fg_color);
 
-    Ok(())
+  Ok(())
 }
 
 pub fn event(
-    event: &crossterm::event::Event,
-    state: &mut SampleReadability,
-    _ctx: &mut Global,
+  event: &crossterm::event::Event,
+  state: &mut SampleReadability,
+  _ctx: &mut Global,
 ) -> Result<Outcome, Error> {
-    event_flow!(state.bg_color.handle(event, Popup));
-    event_flow!(state.fg_color.handle(event, Popup));
-    event_flow!(state.high_contrast.handle(event, Regular));
-    event_flow!(state.para.handle(event, Regular));
-    Ok(Outcome::Continue)
+  event_flow!(state.bg_color.handle(event, Popup));
+  event_flow!(state.fg_color.handle(event, Popup));
+  event_flow!(state.high_contrast.handle(event, Regular));
+  event_flow!(state.para.handle(event, Regular));
+  Ok(Outcome::Continue)
 }

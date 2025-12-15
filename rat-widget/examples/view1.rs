@@ -15,100 +15,114 @@ use ratatui::widgets::{Block, BorderType, Wrap};
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        sample1: SAMPLE1.to_string(),
-        sample2: SAMPLE2.to_string(),
-        view_state: Default::default(),
-        first: Default::default(),
-        second: Default::default(),
-    };
+  let mut state = State {
+    sample1: SAMPLE1.to_string(),
+    sample2: SAMPLE2.to_string(),
+    view_state: Default::default(),
+    first: Default::default(),
+    second: Default::default(),
+  };
 
-    run_ui("view1", mock_init, event, render, &mut state)
+  run_ui("view1", mock_init, event, render, &mut state)
 }
 
 struct State {
-    sample1: String,
-    sample2: String,
+  sample1: String,
+  sample2: String,
 
-    view_state: ViewState,
+  view_state: ViewState,
 
-    first: ParagraphState,
-    second: ParagraphState,
+  first: ParagraphState,
+  second: ParagraphState,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l = Layout::horizontal([
-        Constraint::Length(1),
-        Constraint::Fill(1),
-        Constraint::Length(1),
-        Constraint::Fill(1),
-        Constraint::Length(1),
-    ])
-    .split(area);
+  let l = Layout::horizontal([
+    Constraint::Length(1),
+    Constraint::Fill(1),
+    Constraint::Length(1),
+    Constraint::Fill(1),
+    Constraint::Length(1),
+  ])
+  .split(area);
 
-    // Define the view and create the Render struct.
-    let mut view_buf = View::new()
-        .layout(Rect::new(10, 10, 44, 47))
-        .view_size(Size::new(100, 100))
-        .vscroll(Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)))
-        .hscroll(Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)))
-        .block(Block::bordered().border_type(BorderType::Rounded))
-        .into_buffer(l[1], &mut state.view_state);
+  // Define the view and create the Render struct.
+  let mut view_buf = View::new()
+    .layout(Rect::new(10, 10, 44, 47))
+    .view_size(Size::new(100, 100))
+    .vscroll(
+      Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+    )
+    .hscroll(
+      Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+    )
+    .block(Block::bordered().border_type(BorderType::Rounded))
+    .into_buffer(l[1], &mut state.view_state);
 
-    // render a widget using View coordinates.
-    view_buf.render(
-        Paragraph::new(state.sample1.clone())
-            .wrap(Wrap::default())
-            .style(ctx.theme.p.limegreen(0))
-            .block(Block::bordered().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)))
-            .scroll(Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG))),
-        Rect::new(10, 10, 40, 18),
-        &mut state.first,
-    );
-    view_buf.render(
-        Paragraph::new(state.sample2.clone())
-            .wrap(Wrap::default())
-            .style(ctx.theme.p.bluegreen(0))
-            .block(Block::bordered().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)))
-            .scroll(Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG))),
-        Rect::new(14, 29, 40, 18),
-        &mut state.second,
-    );
+  // render a widget using View coordinates.
+  view_buf.render(
+    Paragraph::new(state.sample1.clone())
+      .wrap(Wrap::default())
+      .style(ctx.theme.p.limegreen(0))
+      .block(
+        Block::bordered()
+          .style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+      )
+      .scroll(
+        Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+      ),
+    Rect::new(10, 10, 40, 18),
+    &mut state.first,
+  );
+  view_buf.render(
+    Paragraph::new(state.sample2.clone())
+      .wrap(Wrap::default())
+      .style(ctx.theme.p.bluegreen(0))
+      .block(
+        Block::bordered()
+          .style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+      )
+      .scroll(
+        Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+      ),
+    Rect::new(14, 29, 40, 18),
+    &mut state.second,
+  );
 
-    // view content is done, now convert to the output widget and
-    // render it.
-    view_buf.finish(buf, &mut state.view_state);
+  // view content is done, now convert to the output widget and
+  // render it.
+  view_buf.finish(buf, &mut state.view_state);
 
-    Ok(())
+  Ok(())
 }
 
 fn focus(state: &mut State) -> Focus {
-    let mut fb = FocusBuilder::new(None);
-    fb.widget(&state.first);
-    fb.widget(&state.second);
-    fb.build()
+  let mut fb = FocusBuilder::new(None);
+  fb.widget(&state.first);
+  fb.widget(&state.second);
+  fb.build()
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    ctx.focus_outcome = focus(state).handle(event, Regular);
+  ctx.focus_outcome = focus(state).handle(event, Regular);
 
-    // handle inner first.
-    try_flow!(state.first.handle(event, Regular));
-    try_flow!(state.second.handle(event, Regular));
-    try_flow!(state.view_state.handle(event, Regular));
+  // handle inner first.
+  try_flow!(state.first.handle(event, Regular));
+  try_flow!(state.second.handle(event, Regular));
+  try_flow!(state.view_state.handle(event, Regular));
 
-    Ok(Outcome::Continue)
+  Ok(Outcome::Continue)
 }
 
 static SAMPLE1: &'static str = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.

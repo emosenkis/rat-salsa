@@ -4,59 +4,62 @@ use rat_text::text_area::TextAreaState;
 use ropey::{Rope, RopeBuilder};
 use std::ops::Range;
 
-pub fn add_range_styles(state: &mut TextAreaState, styles: Vec<(TextRange, usize)>) {
-    for (range, style) in styles {
-        _ = state.add_range_style(range, style);
-    }
+pub fn add_range_styles(
+  state: &mut TextAreaState,
+  styles: Vec<(TextRange, usize)>,
+) {
+  for (range, style) in styles {
+    _ = state.add_range_style(range, style);
+  }
 }
 
 #[allow(unused)]
 pub fn sample_scott_0() -> (Rope, Vec<(TextRange, usize)>) {
-    let rope = Rope::from_str(SCOTT_0);
-    let mut styles = Vec::new();
+  let rope = Rope::from_str(SCOTT_0);
+  let mut styles = Vec::new();
 
-    styles.push((TextRange::new((0, 0), (13, 0)), 0));
-    styles.push((TextRange::new((0, 1), (13, 1)), 0));
-    styles.push((TextRange::new((4, 3), (17, 3)), 0));
-    styles.push((TextRange::new((31, 44), (44, 44)), 0));
+  styles.push((TextRange::new((0, 0), (13, 0)), 0));
+  styles.push((TextRange::new((0, 1), (13, 1)), 0));
+  styles.push((TextRange::new((4, 3), (17, 3)), 0));
+  styles.push((TextRange::new((31, 44), (44, 44)), 0));
 
-    // overlapping styles
-    styles.push((TextRange::new((30, 7), (42, 7)), 0));
-    styles.push((TextRange::new((37, 7), (41, 7)), 1));
+  // overlapping styles
+  styles.push((TextRange::new((30, 7), (42, 7)), 0));
+  styles.push((TextRange::new((37, 7), (41, 7)), 1));
 
-    styles.push((TextRange::new((44, 7), (63, 7)), 0));
-    styles.push((TextRange::new((58, 7), (62, 7)), 1));
+  styles.push((TextRange::new((44, 7), (63, 7)), 0));
+  styles.push((TextRange::new((58, 7), (62, 7)), 1));
 
-    styles.push((TextRange::new((65, 7), (6, 8)), 0));
-    styles.push((TextRange::new((1, 8), (5, 8)), 0));
+  styles.push((TextRange::new((65, 7), (6, 8)), 0));
+  styles.push((TextRange::new((1, 8), (5, 8)), 0));
 
-    styles.push((TextRange::new((8, 8), (24, 8)), 0));
-    styles.push((TextRange::new((19, 8), (23, 8)), 0));
+  styles.push((TextRange::new((8, 8), (24, 8)), 0));
+  styles.push((TextRange::new((19, 8), (23, 8)), 0));
 
-    styles.push((TextRange::new((26, 8), (48, 8)), 0));
-    styles.push((TextRange::new((43, 8), (47, 8)), 0));
+  styles.push((TextRange::new((26, 8), (48, 8)), 0));
+  styles.push((TextRange::new((43, 8), (47, 8)), 0));
 
-    styles.push((TextRange::new((53, 8), (73, 8)), 0));
-    styles.push((TextRange::new((68, 8), (72, 8)), 0));
+  styles.push((TextRange::new((53, 8), (73, 8)), 0));
+  styles.push((TextRange::new((68, 8), (72, 8)), 0));
 
-    (rope, styles)
+  (rope, styles)
 }
 
 #[allow(unused)]
 pub fn sample_scott_1() -> (Rope, Vec<(TextRange, usize)>) {
-    (Rope::from_str(SCOTT_1), Vec::new())
+  (Rope::from_str(SCOTT_1), Vec::new())
 }
 
 #[allow(unused)]
 pub fn sample_bosworth_1() -> (Rope, Vec<(TextRange, usize)>) {
-    (Rope::from_str(BOSWORTH), Vec::new())
+  (Rope::from_str(BOSWORTH), Vec::new())
 }
 
 #[allow(unused)]
 pub fn sample_irish() -> (Rope, Vec<(TextRange, usize)>) {
-    (
-        Rope::from_str(
-            r#"The January 1908 Irish representative peer election was held to
+  (
+    Rope::from_str(
+      r#"The January 1908 Irish representative peer election was held to
 fill a vacancy among the 28 Irish representative peers at that
 time elected to the British House of Lords. Conducted by post,
 with ballots sent to the 134 holders of Irish peerages eligible
@@ -366,134 +369,134 @@ Lords.[13] Farnham lived until 1957, and with his death, only
 three Irish representative peers remained;[65] the last died in
 1961.[13]
 "#,
-        ),
-        Vec::new(),
-    )
+    ),
+    Vec::new(),
+  )
 }
 
 #[allow(unused)]
 pub fn sample_emoji() -> (Rope, Vec<(TextRange, usize)>) {
-    (
-        Rope::from_str("short text\nw🤷‍♂️x\nw🤷‍♀️x\nw🤦‍♂️x\nw❤️x\nw🤦‍♀️x\nw💕x\nw🙍🏿‍♀️x\n"),
-        Vec::new(),
-    )
+  (
+    Rope::from_str("short text\nw🤷‍♂️x\nw🤷‍♀️x\nw🤦‍♂️x\nw❤️x\nw🤦‍♀️x\nw💕x\nw🙍🏿‍♀️x\n"),
+    Vec::new(),
+  )
 }
 
 #[allow(unused)]
 pub fn sample_tabs() -> (Rope, Vec<(TextRange, usize)>) {
-    (
-        Rope::from_str("\t\ttabs\n\t\t\t\ttabs\n\tt\tt\tt\n"),
-        Vec::new(),
-    )
+  (
+    Rope::from_str("\t\ttabs\n\t\t\t\ttabs\n\tt\tt\tt\n"),
+    Vec::new(),
+  )
 }
 
 #[allow(unused)]
 pub fn sample_lorem_ipsum() -> (Rope, Vec<(TextRange, usize)>) {
-    let styles = Vec::new();
-    let mut buf = RopeBuilder::new();
+  let styles = Vec::new();
+  let mut buf = RopeBuilder::new();
 
-    let words = lipsum(2500);
-    buf.append(words.as_str());
+  let words = lipsum(2500);
+  buf.append(words.as_str());
 
-    let rope = buf.finish();
+  let rope = buf.finish();
 
-    (rope, styles)
+  (rope, styles)
 }
 
 #[allow(unused)]
 pub fn sample_lorem_rustum() -> (Rope, Vec<(Range<usize>, usize)>) {
-    let l = lorem_rustum::LoremRustum::new(1_000_000);
+  let l = lorem_rustum::LoremRustum::new(1_000_000);
 
-    let mut styles = Vec::new();
+  let mut styles = Vec::new();
 
-    let mut buf = RopeBuilder::new();
-    let mut pos = 0;
-    let mut width = 0;
-    for p in l.body {
-        buf.append(p);
-        buf.append(" ");
-        width += p.len() + 1;
+  let mut buf = RopeBuilder::new();
+  let mut pos = 0;
+  let mut width = 0;
+  for p in l.body {
+    buf.append(p);
+    buf.append(" ");
+    width += p.len() + 1;
 
-        if p == "macro" {
-            styles.push((pos..pos + p.len(), 0));
-        } else if p == "assert!" {
-            styles.push((pos..pos + p.len(), 1));
-        } else if p == "<'a>" {
-            styles.push((pos..pos + p.len(), 2));
-        } else if p == "await" {
-            styles.push((pos..pos + p.len(), 3));
-        }
-
-        pos += p.len() + 1;
-
-        if width > 66 {
-            buf.append("\n");
-            width = 0;
-            pos += 1;
-        }
+    if p == "macro" {
+      styles.push((pos..pos + p.len(), 0));
+    } else if p == "assert!" {
+      styles.push((pos..pos + p.len(), 1));
+    } else if p == "<'a>" {
+      styles.push((pos..pos + p.len(), 2));
+    } else if p == "await" {
+      styles.push((pos..pos + p.len(), 3));
     }
-    let buf = buf.finish();
 
-    (buf, styles)
+    pos += p.len() + 1;
+
+    if width > 66 {
+      buf.append("\n");
+      width = 0;
+      pos += 1;
+    }
+  }
+  let buf = buf.finish();
+
+  (buf, styles)
 }
 
 #[allow(unused)]
 pub fn sample_pattern_0() -> (Rope, Vec<(TextRange, usize)>) {
-    (Rope::from_str(PATTERN_0), Vec::new())
+  (Rope::from_str(PATTERN_0), Vec::new())
 }
 
 #[allow(unused)]
 pub fn sample_long() -> (Rope, Vec<(TextRange, usize)>) {
-    let mut buf = String::new();
-    let pat = ["1", "2", "3", "4", " ", "6", "7", "8", "9", " "];
+  let mut buf = String::new();
+  let pat = ["1", "2", "3", "4", " ", "6", "7", "8", "9", " "];
 
-    for i in 0..500 {
-        use std::fmt::Write;
+  for i in 0..500 {
+    use std::fmt::Write;
 
-        _ = write!(buf, "{:04} ", i);
-        for j in 0..128000 {
-            buf.push_str(pat[j % 10]);
-        }
-        buf.push_str("\n");
+    _ = write!(buf, "{:04} ", i);
+    for j in 0..128000 {
+      buf.push_str(pat[j % 10]);
     }
+    buf.push_str("\n");
+  }
 
-    (Rope::from(buf), Vec::new())
+  (Rope::from(buf), Vec::new())
 }
 
 #[allow(unused)]
 pub fn sample_medium() -> (Rope, Vec<(TextRange, usize)>) {
-    let mut buf = String::new();
-    let pat = ["1", "2", "3", "4", " ", "6", "7", "8", "9", " "];
+  let mut buf = String::new();
+  let pat = ["1", "2", "3", "4", " ", "6", "7", "8", "9", " "];
 
-    for i in 0..500 {
-        use std::fmt::Write;
+  for i in 0..500 {
+    use std::fmt::Write;
 
-        _ = write!(buf, "{:04} ", i);
-        for j in 0..16384 {
-            buf.push_str(pat[j % 10]);
-        }
-        buf.push_str("\n");
+    _ = write!(buf, "{:04} ", i);
+    for j in 0..16384 {
+      buf.push_str(pat[j % 10]);
     }
+    buf.push_str("\n");
+  }
 
-    (Rope::from(buf), Vec::new())
+  (Rope::from(buf), Vec::new())
 }
 
 #[allow(unused)]
 pub fn sample_short() -> (Rope, Vec<(TextRange, usize)>) {
-    let mut buf = String::new();
-    let pat = ["1", "2", "3", "4", " ", "6", "7", "8", "9", " "];
+  let mut buf = String::new();
+  let pat = ["1", "2", "3", "4", " ", "6", "7", "8", "9", " "];
 
-    for i in 0..500 {
-        use std::fmt::Write;
+  for i in 0..500 {
+    use std::fmt::Write;
 
-        _ = write!(buf, "{:04} ", i);
-        for j in 0..1024 {
-            buf.push_str(pat[j % 10]);
-        }
-        buf.push_str("\n");
+    _ = write!(buf, "{:04} ", i);
+    for j in 0..1024 {
+      buf.push_str(pat[j % 10]);
     }
+    buf.push_str("\n");
+  }
 
-    (Rope::from(buf), Vec::new())
+  (Rope::from(buf), Vec::new())
 }
 
 #[allow(unused)]

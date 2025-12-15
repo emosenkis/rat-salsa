@@ -27,4 +27,6 @@
 //! .render(area, buf, &mut state.line_numbers);
 //! ```
 
-pub use rat_text::line_number::{LineNumberState, LineNumberStyle, LineNumbers};
+pub use rat_text::line_number::{
+  LineNumberState, LineNumberStyle, LineNumbers,
+};

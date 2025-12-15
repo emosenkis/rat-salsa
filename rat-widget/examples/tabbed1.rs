@@ -23,288 +23,288 @@ use ratatui::widgets::{Block, BorderType, StatefulWidget, Widget};
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        border_type: None,
-        placement: TabPlacement::default(),
-        style: TabType::default(),
-        close: false,
-        tabbed: TabbedState::default(),
-        tabs_0: Default::default(),
-        tabs_1: Default::default(),
-        tabs_2: Default::default(),
-        menu: MenuLineState::default(),
-        status: StatusLineState::default(),
-    };
-    state.menu.focus.set(true);
+  let mut state = State {
+    border_type: None,
+    placement: TabPlacement::default(),
+    style: TabType::default(),
+    close: false,
+    tabbed: TabbedState::default(),
+    tabs_0: Default::default(),
+    tabs_1: Default::default(),
+    tabs_2: Default::default(),
+    menu: MenuLineState::default(),
+    status: StatusLineState::default(),
+  };
+  state.menu.focus.set(true);
 
-    run_ui("tabbed1", mock_init, event, render, &mut state)
+  run_ui("tabbed1", mock_init, event, render, &mut state)
 }
 
 struct Data {}
 
 struct State {
-    border_type: Option<(BorderType, border::Set)>,
-    placement: TabPlacement,
-    style: TabType,
-    close: bool,
+  border_type: Option<(BorderType, border::Set)>,
+  placement: TabPlacement,
+  style: TabType,
+  close: bool,
 
-    tabbed: TabbedState,
+  tabbed: TabbedState,
 
-    tabs_0: ListState<RowSelection>,
-    tabs_1: EndlessScrollState,
-    tabs_2: EndlessScrollState,
+  tabs_0: ListState<RowSelection>,
+  tabs_1: EndlessScrollState,
+  tabs_2: EndlessScrollState,
 
-    menu: MenuLineState,
-    status: StatusLineState,
+  menu: MenuLineState,
+  status: StatusLineState,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l1 = Layout::vertical([
-        Constraint::Length(1),
-        Constraint::Fill(1),
-        Constraint::Length(1),
-        Constraint::Length(1),
-    ])
-    .split(area);
+  let l1 = Layout::vertical([
+    Constraint::Length(1),
+    Constraint::Fill(1),
+    Constraint::Length(1),
+    Constraint::Length(1),
+  ])
+  .split(area);
 
-    let l2 = Layout::horizontal([
-        Constraint::Length(25),
-        Constraint::Fill(1),
-        Constraint::Length(15),
-    ])
-    .split(l1[1]);
+  let l2 = Layout::horizontal([
+    Constraint::Length(25),
+    Constraint::Fill(1),
+    Constraint::Length(15),
+  ])
+  .split(l1[1]);
 
-    let mut tab = Tabbed::new()
-        .styles(ctx.theme.style(WidgetStyle::TABBED))
-        .tab_type(state.style)
-        .placement(state.placement);
-    if state.close {
-        tab = tab.closeable(true);
-    }
-    if let Some(border_type) = state.border_type {
-        tab = tab.block(
-            Block::bordered()
-                .border_type(border_type.0)
-                .border_set(border_type.1),
-        );
-    }
-    tab = tab.tabs(["Issues", "Numbers", "More numbers"]);
-    tab.render(l2[1], buf, &mut state.tabbed);
+  let mut tab = Tabbed::new()
+    .styles(ctx.theme.style(WidgetStyle::TABBED))
+    .tab_type(state.style)
+    .placement(state.placement);
+  if state.close {
+    tab = tab.closeable(true);
+  }
+  if let Some(border_type) = state.border_type {
+    tab = tab.block(
+      Block::bordered()
+        .border_type(border_type.0)
+        .border_set(border_type.1),
+    );
+  }
+  tab = tab.tabs(["Issues", "Numbers", "More numbers"]);
+  tab.render(l2[1], buf, &mut state.tabbed);
 
-    match state.tabbed.selected().expect("tab") {
-        0 => List::<RowSelection>::new(LIST)
-            .scroll(Scroll::new())
-            .styles(ctx.theme.style(WidgetStyle::LIST))
-            .render(state.tabbed.widget_area, buf, &mut state.tabs_0),
-        1 => EndlessScroll::new()
-            .max(2024)
-            .style(ctx.theme.p.bluegreen(0))
-            .focus_style(ctx.theme.style_style(Style::FOCUS))
-            .v_scroll(Scroll::new().styles(ctx.theme.style(WidgetStyle::SCROLL)))
-            .render(state.tabbed.widget_area, buf, &mut state.tabs_1),
-        2 => EndlessScroll::new()
-            .max(2024)
-            .style(ctx.theme.p.cyan(0))
-            .focus_style(ctx.theme.style_style(Style::FOCUS))
-            .v_scroll(Scroll::new().styles(ctx.theme.style(WidgetStyle::SCROLL)))
-            .render(state.tabbed.widget_area, buf, &mut state.tabs_2),
-        _ => {}
-    }
+  match state.tabbed.selected().expect("tab") {
+    0 => List::<RowSelection>::new(LIST)
+      .scroll(Scroll::new())
+      .styles(ctx.theme.style(WidgetStyle::LIST))
+      .render(state.tabbed.widget_area, buf, &mut state.tabs_0),
+    1 => EndlessScroll::new()
+      .max(2024)
+      .style(ctx.theme.p.bluegreen(0))
+      .focus_style(ctx.theme.style_style(Style::FOCUS))
+      .v_scroll(Scroll::new().styles(ctx.theme.style(WidgetStyle::SCROLL)))
+      .render(state.tabbed.widget_area, buf, &mut state.tabs_1),
+    2 => EndlessScroll::new()
+      .max(2024)
+      .style(ctx.theme.p.cyan(0))
+      .focus_style(ctx.theme.style_style(Style::FOCUS))
+      .v_scroll(Scroll::new().styles(ctx.theme.style(WidgetStyle::SCROLL)))
+      .render(state.tabbed.widget_area, buf, &mut state.tabs_2),
+    _ => {}
+  }
 
-    let mut area = Rect::new(l2[0].x, l2[0].y, l2[0].width, 1);
+  let mut area = Rect::new(l2[0].x, l2[0].y, l2[0].width, 1);
 
-    Line::from("F1: close").yellow().render(area, buf);
-    area.y += 1;
-    Line::from("F2: type").yellow().render(area, buf);
-    area.y += 1;
-    Line::from("F3: alignment").yellow().render(area, buf);
-    area.y += 1;
-    Line::from("F5: border").yellow().render(area, buf);
-    area.y += 1;
-    Line::from("F12: key-nav").yellow().render(area, buf);
-    area.y += 1;
+  Line::from("F1: close").yellow().render(area, buf);
+  area.y += 1;
+  Line::from("F2: type").yellow().render(area, buf);
+  area.y += 1;
+  Line::from("F3: alignment").yellow().render(area, buf);
+  area.y += 1;
+  Line::from("F5: border").yellow().render(area, buf);
+  area.y += 1;
+  Line::from("F12: key-nav").yellow().render(area, buf);
+  area.y += 1;
 
-    MenuLine::new()
-        .title("||||")
-        .item_parsed("_Quit")
-        .title_style(Style::default().black().on_yellow())
-        .style(Style::default().black().on_dark_gray())
-        .render(l1[3], buf, &mut state.menu);
+  MenuLine::new()
+    .title("||||")
+    .item_parsed("_Quit")
+    .title_style(Style::default().black().on_yellow())
+    .style(Style::default().black().on_dark_gray())
+    .render(l1[3], buf, &mut state.menu);
 
-    Ok(())
+  Ok(())
 }
 
 fn focus(state: &State) -> Focus {
-    let mut fb = FocusBuilder::default();
-    fb.widget(&state.tabbed);
-    if let Some(sel) = state.tabbed.selected {
-        match sel {
-            0 => _ = fb.widget(&state.tabs_0),
-            1 => _ = fb.widget(&state.tabs_1),
-            2 => _ = fb.widget(&state.tabs_2),
-            _ => {}
-        }
+  let mut fb = FocusBuilder::default();
+  fb.widget(&state.tabbed);
+  if let Some(sel) = state.tabbed.selected {
+    match sel {
+      0 => _ = fb.widget(&state.tabs_0),
+      1 => _ = fb.widget(&state.tabs_1),
+      2 => _ = fb.widget(&state.tabs_2),
+      _ => {}
     }
-    fb.widget(&state.menu);
-    let f = fb.build();
-    f.enable_log();
-    f
+  }
+  fb.widget(&state.menu);
+  let f = fb.build();
+  f.enable_log();
+  f
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    ctx.focus_outcome = focus(state).handle(event, Regular);
+  ctx.focus_outcome = focus(state).handle(event, Regular);
 
-    try_flow!(match event {
-        ct_event!(keycode press F(1)) => {
-            state.close = !state.close;
-            Outcome::Changed
+  try_flow!(match event {
+    ct_event!(keycode press F(1)) => {
+      state.close = !state.close;
+      Outcome::Changed
+    }
+    ct_event!(keycode press F(2)) => {
+      state.style = match state.style {
+        TabType::Glued => TabType::Attached,
+        TabType::Attached => TabType::Glued,
+        _ => TabType::Glued,
+      };
+      Outcome::Changed
+    }
+    ct_event!(keycode press SHIFT-F(2)) => {
+      state.style = match state.style {
+        TabType::Glued => TabType::Attached,
+        TabType::Attached => TabType::Glued,
+        _ => TabType::Glued,
+      };
+      Outcome::Changed
+    }
+    ct_event!(keycode press F(3)) => {
+      state.placement = match state.placement {
+        TabPlacement::Top => TabPlacement::Right,
+        TabPlacement::Right => TabPlacement::Bottom,
+        TabPlacement::Bottom => TabPlacement::Left,
+        TabPlacement::Left => TabPlacement::Top,
+      };
+      Outcome::Changed
+    }
+    ct_event!(keycode press SHIFT-F(3)) => {
+      state.placement = match state.placement {
+        TabPlacement::Top => TabPlacement::Left,
+        TabPlacement::Right => TabPlacement::Top,
+        TabPlacement::Bottom => TabPlacement::Right,
+        TabPlacement::Left => TabPlacement::Bottom,
+      };
+      Outcome::Changed
+    }
+    ct_event!(keycode press F(5)) => {
+      state.border_type = match state.border_type {
+        None => Some((BorderType::Plain, border::PLAIN)),
+        Some((BorderType::Plain, border::PLAIN)) => {
+          Some((BorderType::Plain, border::ONE_EIGHTH_TALL))
         }
-        ct_event!(keycode press F(2)) => {
-            state.style = match state.style {
-                TabType::Glued => TabType::Attached,
-                TabType::Attached => TabType::Glued,
-                _ => TabType::Glued,
-            };
-            Outcome::Changed
+        Some((BorderType::Plain, border::ONE_EIGHTH_TALL)) => {
+          Some((BorderType::Plain, border::ONE_EIGHTH_WIDE))
         }
-        ct_event!(keycode press SHIFT-F(2)) => {
-            state.style = match state.style {
-                TabType::Glued => TabType::Attached,
-                TabType::Attached => TabType::Glued,
-                _ => TabType::Glued,
-            };
-            Outcome::Changed
+        Some((BorderType::Plain, border::ONE_EIGHTH_WIDE)) => {
+          Some((BorderType::Plain, border::PROPORTIONAL_WIDE))
         }
-        ct_event!(keycode press F(3)) => {
-            state.placement = match state.placement {
-                TabPlacement::Top => TabPlacement::Right,
-                TabPlacement::Right => TabPlacement::Bottom,
-                TabPlacement::Bottom => TabPlacement::Left,
-                TabPlacement::Left => TabPlacement::Top,
-            };
-            Outcome::Changed
+        Some((BorderType::Plain, border::PROPORTIONAL_WIDE)) => {
+          Some((BorderType::Plain, border::PROPORTIONAL_TALL))
         }
-        ct_event!(keycode press SHIFT-F(3)) => {
-            state.placement = match state.placement {
-                TabPlacement::Top => TabPlacement::Left,
-                TabPlacement::Right => TabPlacement::Top,
-                TabPlacement::Bottom => TabPlacement::Right,
-                TabPlacement::Left => TabPlacement::Bottom,
-            };
-            Outcome::Changed
+        Some((BorderType::Plain, border::PROPORTIONAL_TALL)) => {
+          Some((BorderType::Double, border::DOUBLE))
         }
-        ct_event!(keycode press F(5)) => {
-            state.border_type = match state.border_type {
-                None => Some((BorderType::Plain, border::PLAIN)),
-                Some((BorderType::Plain, border::PLAIN)) => {
-                    Some((BorderType::Plain, border::ONE_EIGHTH_TALL))
-                }
-                Some((BorderType::Plain, border::ONE_EIGHTH_TALL)) => {
-                    Some((BorderType::Plain, border::ONE_EIGHTH_WIDE))
-                }
-                Some((BorderType::Plain, border::ONE_EIGHTH_WIDE)) => {
-                    Some((BorderType::Plain, border::PROPORTIONAL_WIDE))
-                }
-                Some((BorderType::Plain, border::PROPORTIONAL_WIDE)) => {
-                    Some((BorderType::Plain, border::PROPORTIONAL_TALL))
-                }
-                Some((BorderType::Plain, border::PROPORTIONAL_TALL)) => {
-                    Some((BorderType::Double, border::DOUBLE))
-                }
-                Some((BorderType::Double, border::DOUBLE)) => {
-                    Some((BorderType::Rounded, border::ROUNDED))
-                }
-                Some((BorderType::Rounded, border::ROUNDED)) => {
-                    Some((BorderType::Thick, border::THICK))
-                }
-                Some((BorderType::Thick, border::THICK)) => {
-                    Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE))
-                }
-                Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE)) => {
-                    Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE))
-                }
-                Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE)) => None,
-                _ => Some((BorderType::Plain, border::PLAIN)),
-            };
-            Outcome::Changed
+        Some((BorderType::Double, border::DOUBLE)) => {
+          Some((BorderType::Rounded, border::ROUNDED))
         }
-        ct_event!(keycode press SHIFT-F(5)) => {
-            state.border_type = match state.border_type {
-                None => Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE)),
-                Some((BorderType::Plain, border::PLAIN)) => None,
-                Some((BorderType::Plain, border::ONE_EIGHTH_TALL)) => {
-                    Some((BorderType::Plain, border::PLAIN))
-                }
-                Some((BorderType::Plain, border::ONE_EIGHTH_WIDE)) => {
-                    Some((BorderType::Plain, border::ONE_EIGHTH_TALL))
-                }
-                Some((BorderType::Plain, border::PROPORTIONAL_WIDE)) => {
-                    Some((BorderType::Plain, border::ONE_EIGHTH_WIDE))
-                }
-                Some((BorderType::Plain, border::PROPORTIONAL_TALL)) => {
-                    Some((BorderType::Plain, border::PROPORTIONAL_WIDE))
-                }
-                Some((BorderType::Double, border::DOUBLE)) => {
-                    Some((BorderType::Plain, border::PROPORTIONAL_TALL))
-                }
-                Some((BorderType::Rounded, border::ROUNDED)) => {
-                    Some((BorderType::Double, border::DOUBLE))
-                }
-                Some((BorderType::Thick, border::THICK)) => {
-                    Some((BorderType::Rounded, border::ROUNDED))
-                }
-                Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE)) => {
-                    Some((BorderType::Thick, border::THICK))
-                }
-                Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE)) => {
-                    Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE))
-                }
-                _ => Some((BorderType::Plain, border::PLAIN)),
-            };
-            Outcome::Changed
+        Some((BorderType::Rounded, border::ROUNDED)) => {
+          Some((BorderType::Thick, border::THICK))
         }
-        ct_event!(keycode press F(12)) => {
-            focus(state).focus(&state.tabbed);
-            Outcome::Changed
+        Some((BorderType::Thick, border::THICK)) => {
+          Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE))
         }
+        Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE)) => {
+          Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE))
+        }
+        Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE)) => None,
+        _ => Some((BorderType::Plain, border::PLAIN)),
+      };
+      Outcome::Changed
+    }
+    ct_event!(keycode press SHIFT-F(5)) => {
+      state.border_type = match state.border_type {
+        None => Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE)),
+        Some((BorderType::Plain, border::PLAIN)) => None,
+        Some((BorderType::Plain, border::ONE_EIGHTH_TALL)) => {
+          Some((BorderType::Plain, border::PLAIN))
+        }
+        Some((BorderType::Plain, border::ONE_EIGHTH_WIDE)) => {
+          Some((BorderType::Plain, border::ONE_EIGHTH_TALL))
+        }
+        Some((BorderType::Plain, border::PROPORTIONAL_WIDE)) => {
+          Some((BorderType::Plain, border::ONE_EIGHTH_WIDE))
+        }
+        Some((BorderType::Plain, border::PROPORTIONAL_TALL)) => {
+          Some((BorderType::Plain, border::PROPORTIONAL_WIDE))
+        }
+        Some((BorderType::Double, border::DOUBLE)) => {
+          Some((BorderType::Plain, border::PROPORTIONAL_TALL))
+        }
+        Some((BorderType::Rounded, border::ROUNDED)) => {
+          Some((BorderType::Double, border::DOUBLE))
+        }
+        Some((BorderType::Thick, border::THICK)) => {
+          Some((BorderType::Rounded, border::ROUNDED))
+        }
+        Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE)) => {
+          Some((BorderType::Thick, border::THICK))
+        }
+        Some((BorderType::QuadrantOutside, border::QUADRANT_OUTSIDE)) => {
+          Some((BorderType::QuadrantInside, border::QUADRANT_INSIDE))
+        }
+        _ => Some((BorderType::Plain, border::PLAIN)),
+      };
+      Outcome::Changed
+    }
+    ct_event!(keycode press F(12)) => {
+      focus(state).focus(&state.tabbed);
+      Outcome::Changed
+    }
+    _ => Outcome::Continue,
+  });
+
+  try_flow!(HandleEvent::handle(&mut state.tabbed, event, Regular));
+
+  try_flow!({
+    if let Some(sel) = state.tabbed.selected() {
+      match sel {
+        0 => state.tabs_0.handle(event, Regular),
+        1 => state.tabs_1.handle(event, Regular),
+        2 => state.tabs_2.handle(event, Regular),
         _ => Outcome::Continue,
-    });
+      }
+    } else {
+      Outcome::Continue
+    }
+  });
 
-    try_flow!(HandleEvent::handle(&mut state.tabbed, event, Regular));
+  try_flow!(match state.menu.handle(event, Regular) {
+    MenuOutcome::Activated(0) => {
+      ctx.quit = true;
+      Outcome::Changed
+    }
+    _ => Outcome::Continue,
+  });
 
-    try_flow!({
-        if let Some(sel) = state.tabbed.selected() {
-            match sel {
-                0 => state.tabs_0.handle(event, Regular),
-                1 => state.tabs_1.handle(event, Regular),
-                2 => state.tabs_2.handle(event, Regular),
-                _ => Outcome::Continue,
-            }
-        } else {
-            Outcome::Continue
-        }
-    });
-
-    try_flow!(match state.menu.handle(event, Regular) {
-        MenuOutcome::Activated(0) => {
-            ctx.quit = true;
-            Outcome::Changed
-        }
-        _ => Outcome::Continue,
-    });
-
-    Ok(Outcome::Continue)
+  Ok(Outcome::Continue)
 }
 
 static LIST: [&str; 28] = [

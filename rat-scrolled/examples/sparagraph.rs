@@ -14,63 +14,69 @@ mod adapter;
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        sample1: TEXT_1.to_string(),
-        sample2: TEXT_2.to_string(),
-        text1: Default::default(),
-        text2: Default::default(),
-    };
+  let mut state = State {
+    sample1: TEXT_1.to_string(),
+    sample2: TEXT_2.to_string(),
+    text1: Default::default(),
+    text2: Default::default(),
+  };
 
-    run_ui("sparagraph", mock_init, event, render, &mut state)
+  run_ui("sparagraph", mock_init, event, render, &mut state)
 }
 
 struct State {
-    sample1: String,
-    sample2: String,
-    text1: ParagraphSState,
-    text2: ParagraphSState,
+  sample1: String,
+  sample2: String,
+  text1: ParagraphSState,
+  text2: ParagraphSState,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l = Layout::horizontal([Constraint::Fill(1), Constraint::Fill(1)])
-        .spacing(1)
-        .split(area);
+  let l = Layout::horizontal([Constraint::Fill(1), Constraint::Fill(1)])
+    .spacing(1)
+    .split(area);
 
-    ParagraphS::new(state.sample1.clone())
-        .scroll(
-            Scroll::new()
-                .overscroll_by(5)
-                .style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
-        )
-        .block(Block::bordered().style(ctx.theme.style_style(Style::CONTAINER_BASE)))
-        .style(ctx.theme.style_style(Style::INPUT))
-        .render(l[0], buf, &mut state.text1);
+  ParagraphS::new(state.sample1.clone())
+    .scroll(
+      Scroll::new()
+        .overscroll_by(5)
+        .style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+    )
+    .block(
+      Block::bordered().style(ctx.theme.style_style(Style::CONTAINER_BASE)),
+    )
+    .style(ctx.theme.style_style(Style::INPUT))
+    .render(l[0], buf, &mut state.text1);
 
-    ParagraphS::new(state.sample2.clone())
-        .wrap(Wrap { trim: true })
-        .scroll(Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)))
-        .block(Block::bordered().style(ctx.theme.style_style(Style::CONTAINER_BASE)))
-        .style(ctx.theme.style_style(Style::INPUT))
-        .render(l[1], buf, &mut state.text2);
+  ParagraphS::new(state.sample2.clone())
+    .wrap(Wrap { trim: true })
+    .scroll(
+      Scroll::new().style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+    )
+    .block(
+      Block::bordered().style(ctx.theme.style_style(Style::CONTAINER_BASE)),
+    )
+    .style(ctx.theme.style_style(Style::INPUT))
+    .render(l[1], buf, &mut state.text2);
 
-    Ok(())
+  Ok(())
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    try_flow!(state.text1.handle(event, MouseOnly));
-    try_flow!(state.text2.handle(event, MouseOnly));
-    Ok(Outcome::Continue)
+  try_flow!(state.text1.handle(event, MouseOnly));
+  try_flow!(state.text2.handle(event, MouseOnly));
+  Ok(Outcome::Continue)
 }
 
 static TEXT_1: &str =

@@ -34,19 +34,19 @@ pub use window_list::handle_window_list;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[must_use]
 pub enum WindowControl<Event> {
-    /// Continue with event-handling.
-    /// In the event-loop this waits for the next event.
-    Continue,
-    /// Break event-handling without repaint.
-    /// In the event-loop this waits for the next event.
-    Unchanged,
-    /// Break event-handling and repaints/renders the application.
-    /// In the event-loop this calls `render`.
-    Changed,
-    /// Return back some application event.
-    Event(Event),
-    /// Close the dialog
-    Close(Event),
+  /// Continue with event-handling.
+  /// In the event-loop this waits for the next event.
+  Continue,
+  /// Break event-handling without repaint.
+  /// In the event-loop this waits for the next event.
+  Unchanged,
+  /// Break event-handling and repaints/renders the application.
+  /// In the event-loop this calls `render`.
+  Changed,
+  /// Return back some application event.
+  Event(Event),
+  /// Close the dialog
+  Close(Event),
 }
 
 // Replace WindowControl with this
@@ -56,23 +56,23 @@ pub enum WindowControl<Event> {
 // }
 
 impl<Event> ConsumedEvent for WindowControl<Event> {
-    fn is_consumed(&self) -> bool {
-        !matches!(self, WindowControl::Continue)
-    }
+  fn is_consumed(&self) -> bool {
+    !matches!(self, WindowControl::Continue)
+  }
 }
 
 impl<Event, T: Into<Outcome>> From<T> for WindowControl<Event> {
-    fn from(value: T) -> Self {
-        let r = value.into();
-        match r {
-            Outcome::Continue => WindowControl::Continue,
-            Outcome::Unchanged => WindowControl::Unchanged,
-            Outcome::Changed => WindowControl::Changed,
-        }
+  fn from(value: T) -> Self {
+    let r = value.into();
+    match r {
+      Outcome::Continue => WindowControl::Continue,
+      Outcome::Unchanged => WindowControl::Unchanged,
+      Outcome::Changed => WindowControl::Changed,
     }
+  }
 }
 
 mod _private {
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct NonExhaustive;
+  #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+  pub struct NonExhaustive;
 }

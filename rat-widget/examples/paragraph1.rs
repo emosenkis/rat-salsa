@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
-use crate::mini_salsa::{MiniSalsaState, layout_grid, mock_init, run_ui, setup_logging};
+use crate::mini_salsa::{
+  MiniSalsaState, layout_grid, mock_init, run_ui, setup_logging,
+};
 use rat_event::{HandleEvent, Outcome, Regular, ct_event, try_flow};
 use rat_focus::{Focus, FocusBuilder, FocusFlag};
 use rat_scrolled::{Scroll, ScrollbarPolicy};
@@ -15,115 +17,115 @@ use ratatui::widgets::{Block, StatefulWidget, Wrap};
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        sample_idx: 0,
-        sample: SAMPLE1.to_string(),
-        wrap: true,
-        line_numbers: Default::default(),
-        para: Default::default(),
-    };
+  let mut state = State {
+    sample_idx: 0,
+    sample: SAMPLE1.to_string(),
+    wrap: true,
+    line_numbers: Default::default(),
+    para: Default::default(),
+  };
 
-    run_ui("paragraph1", mock_init, event, render, &mut state)
+  run_ui("paragraph1", mock_init, event, render, &mut state)
 }
 
 struct State {
-    sample_idx: u32,
-    sample: String,
-    wrap: bool,
-    line_numbers: LineNumberState,
-    para: ParagraphState,
+  sample_idx: u32,
+  sample: String,
+  wrap: bool,
+  line_numbers: LineNumberState,
+  para: ParagraphState,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l0 = layout_grid::<3, 4>(
-        area,
-        Layout::horizontal([
-            Constraint::Length(15),
-            Constraint::Length(4),
-            Constraint::Fill(1),
-            Constraint::Length(15),
-        ]),
-        Layout::vertical([
-            Constraint::Length(1),
-            Constraint::Fill(1),
-            Constraint::Length(1),
-            Constraint::Length(1),
-        ]),
-    );
+  let l0 = layout_grid::<3, 4>(
+    area,
+    Layout::horizontal([
+      Constraint::Length(15),
+      Constraint::Length(4),
+      Constraint::Fill(1),
+      Constraint::Length(15),
+    ]),
+    Layout::vertical([
+      Constraint::Length(1),
+      Constraint::Fill(1),
+      Constraint::Length(1),
+      Constraint::Length(1),
+    ]),
+  );
 
-    let lln = Rect::new(
-        l0[1][1].x,
-        l0[1][1].y + 1,
-        l0[1][1].width,
-        l0[1][1].height - 2,
-    );
-    LineNumbers::new()
-        .start(state.para.vscroll.offset as u32)
-        .render(lln, buf, &mut state.line_numbers);
+  let lln = Rect::new(
+    l0[1][1].x,
+    l0[1][1].y + 1,
+    l0[1][1].width,
+    l0[1][1].height - 2,
+  );
+  LineNumbers::new()
+    .start(state.para.vscroll.offset as u32)
+    .render(lln, buf, &mut state.line_numbers);
 
-    let mut para = Paragraph::new(state.sample.clone())
-        .vscroll(Scroll::new().policy(ScrollbarPolicy::Collapse))
-        .hscroll(Scroll::new().policy(ScrollbarPolicy::Collapse))
-        .block(
-            Block::bordered()
-                .title("Excerpt")
-                .border_style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG))
-                .title_style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
-        )
-        .styles(ctx.theme.style(WidgetStyle::PARAGRAPH));
-    if state.wrap {
-        para = para.wrap(Wrap::default());
-    }
-    para.render(l0[2][1], buf, &mut state.para);
+  let mut para = Paragraph::new(state.sample.clone())
+    .vscroll(Scroll::new().policy(ScrollbarPolicy::Collapse))
+    .hscroll(Scroll::new().policy(ScrollbarPolicy::Collapse))
+    .block(
+      Block::bordered()
+        .title("Excerpt")
+        .border_style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG))
+        .title_style(ctx.theme.style_style(Style::CONTAINER_BORDER_FG)),
+    )
+    .styles(ctx.theme.style(WidgetStyle::PARAGRAPH));
+  if state.wrap {
+    para = para.wrap(Wrap::default());
+  }
+  para.render(l0[2][1], buf, &mut state.para);
 
-    Ok(())
+  Ok(())
 }
 
 fn focus(state: &State) -> Focus {
-    let mut fb = FocusBuilder::default();
-    fb.widget(&state.para) //
-        .widget(&FocusFlag::default());
-    fb.build()
+  let mut fb = FocusBuilder::default();
+  fb.widget(&state.para) //
+    .widget(&FocusFlag::default());
+  fb.build()
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    ctx.focus_outcome = focus(state).handle(event, Regular);
+  ctx.focus_outcome = focus(state).handle(event, Regular);
 
-    try_flow!(state.para.handle(event, Regular));
+  try_flow!(state.para.handle(event, Regular));
 
-    try_flow!(match event {
-        ct_event!(keycode press F(2)) => {
-            state.wrap = !state.wrap;
-            Outcome::Changed
-        }
-        ct_event!(keycode press F(3)) => {
-            state.sample_idx += 1;
-            if state.sample_idx > 1 {
-                state.sample_idx = 0;
-            }
-            match state.sample_idx {
-                0 => state.sample = SAMPLE1.to_string(),
-                1 => state.sample = SAMPLE2.to_string(),
-                _ => {}
-            }
-            state.para.set_line_offset(0);
-            Outcome::Changed
-        }
-        _ => Outcome::Continue,
-    });
+  try_flow!(match event {
+    ct_event!(keycode press F(2)) => {
+      state.wrap = !state.wrap;
+      Outcome::Changed
+    }
+    ct_event!(keycode press F(3)) => {
+      state.sample_idx += 1;
+      if state.sample_idx > 1 {
+        state.sample_idx = 0;
+      }
+      match state.sample_idx {
+        0 => state.sample = SAMPLE1.to_string(),
+        1 => state.sample = SAMPLE2.to_string(),
+        _ => {}
+      }
+      state.para.set_line_offset(0);
+      Outcome::Changed
+    }
+    _ => Outcome::Continue,
+  });
 
-    Ok(Outcome::Continue)
+  Ok(Outcome::Continue)
 }
 
 static SAMPLE1: &str = "Craters of the Moon National Monument and Preserve is a U.S. national monument and national preserve in the Snake River Plain in central Idaho. It is along US 20 (concurrent with US 93 and US 26), between the small towns of Arco and Carey, at an average elevation of 5,900 feet (1,800 m) above sea level.

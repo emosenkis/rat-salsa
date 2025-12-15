@@ -12,53 +12,58 @@ use ratatui::widgets::StatefulWidget;
 use std::any::Any;
 
 pub struct MsgState {
-    pub dlg: DialogFrameState,
-    pub paragraph: ParagraphState,
-    pub message: String,
+  pub dlg: DialogFrameState,
+  pub paragraph: ParagraphState,
+  pub message: String,
 }
 
 impl_has_focus!(dlg, paragraph for MsgState);
 
-pub fn msg_render(area: Rect, buf: &mut Buffer, state: &mut dyn Any, ctx: &mut Global) {
-    let state = state.downcast_mut::<MsgState>().expect("msg-dialog");
+pub fn msg_render(
+  area: Rect,
+  buf: &mut Buffer,
+  state: &mut dyn Any,
+  ctx: &mut Global,
+) {
+  let state = state.downcast_mut::<MsgState>().expect("msg-dialog");
 
-    DialogFrame::new()
-        .styles(ctx.theme.style(WidgetStyle::DIALOG_FRAME))
-        .no_cancel()
-        .left(Constraint::Percentage(19))
-        .right(Constraint::Percentage(19))
-        .top(Constraint::Length(4))
-        .bottom(Constraint::Length(4))
-        .render(area, buf, &mut state.dlg);
+  DialogFrame::new()
+    .styles(ctx.theme.style(WidgetStyle::DIALOG_FRAME))
+    .no_cancel()
+    .left(Constraint::Percentage(19))
+    .right(Constraint::Percentage(19))
+    .top(Constraint::Length(4))
+    .bottom(Constraint::Length(4))
+    .render(area, buf, &mut state.dlg);
 
-    Paragraph::new(state.message.as_str())
-        .styles(ctx.theme.style(WidgetStyle::PARAGRAPH))
-        .render(state.dlg.widget_area, buf, &mut state.paragraph);
+  Paragraph::new(state.message.as_str())
+    .styles(ctx.theme.style(WidgetStyle::PARAGRAPH))
+    .render(state.dlg.widget_area, buf, &mut state.paragraph);
 }
 
 pub fn msg_event(
-    event: &PalEvent,
-    state: &mut dyn Any,
-    ctx: &mut Global,
+  event: &PalEvent,
+  state: &mut dyn Any,
+  ctx: &mut Global,
 ) -> Result<Control<PalEvent>, Error> {
-    let state = state.downcast_mut::<MsgState>().expect("msg-dialog");
+  let state = state.downcast_mut::<MsgState>().expect("msg-dialog");
 
-    if let PalEvent::Event(e) = event {
-        let mut focus = FocusBuilder::build_for(state);
-        ctx.queue(focus.handle(e, Regular));
+  if let PalEvent::Event(e) = event {
+    let mut focus = FocusBuilder::build_for(state);
+    ctx.queue(focus.handle(e, Regular));
 
-        event_flow!(state.paragraph.handle(e, Regular));
-        event_flow!(match state.dlg.handle(e, Dialog) {
-            DialogOutcome::Ok => {
-                Control::Close(PalEvent::NoOp)
-            }
-            DialogOutcome::Cancel => {
-                Control::Close(PalEvent::NoOp)
-            }
-            r => r.into(),
-        });
-        Ok(Control::Continue)
-    } else {
-        Ok(Control::Continue)
-    }
+    event_flow!(state.paragraph.handle(e, Regular));
+    event_flow!(match state.dlg.handle(e, Dialog) {
+      DialogOutcome::Ok => {
+        Control::Close(PalEvent::NoOp)
+      }
+      DialogOutcome::Cancel => {
+        Control::Close(PalEvent::NoOp)
+      }
+      r => r.into(),
+    });
+    Ok(Control::Continue)
+  } else {
+    Ok(Control::Continue)
+  }
 }

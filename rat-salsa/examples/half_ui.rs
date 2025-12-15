@@ -11,7 +11,9 @@ use rat_salsa::timer::TimeOut;
 use rat_salsa::{Control, RunConfig, SalsaAppContext, SalsaContext, run_tui};
 use rat_theme4::theme::SalsaTheme;
 use rat_theme4::{StyleName, WidgetStyle, create_salsa_theme};
-use rat_widget::event::{ConsumedEvent, Dialog, HandleEvent, MenuOutcome, Regular, ct_event};
+use rat_widget::event::{
+  ConsumedEvent, Dialog, HandleEvent, MenuOutcome, Regular, ct_event,
+};
 use rat_widget::focus::FocusBuilder;
 use rat_widget::menu::{MenuLine, MenuLineState};
 use rat_widget::msgdialog::{MsgDialog, MsgDialogState};
@@ -28,66 +30,66 @@ use std::path::PathBuf;
 use std::time::SystemTime;
 
 fn main() -> Result<(), Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let config = Config::default();
-    let theme = create_salsa_theme("Imperial Dark");
-    let mut global = Global::new(config, theme);
-    let mut state = Scenery::default();
+  let config = Config::default();
+  let theme = create_salsa_theme("Imperial Dark");
+  let mut global = Global::new(config, theme);
+  let mut state = Scenery::default();
 
-    #[allow(unused_variables)]
-    let term_size = crossterm::terminal::size()?;
+  #[allow(unused_variables)]
+  let term_size = crossterm::terminal::size()?;
 
-    run_tui(
-        init,
-        render,
-        event,
-        error,
-        &mut global,
-        &mut state,
-        RunConfig::new(CrosstermTerminal::with_options(SalsaOptions {
-            alternate_screen: false,
-            shutdown_clear: true,
-            ratatui_options: TerminalOptions {
-                // viewport: Viewport::Fixed(Rect::new(term_size.0 - 30, term_size.1 - 10, 30, 10)),
-                viewport: Viewport::Inline(4),
-            },
-            ..Default::default()
-        })?)
-        .poll(PollCrossterm)
-        .poll(PollRendered),
-    )?;
+  run_tui(
+    init,
+    render,
+    event,
+    error,
+    &mut global,
+    &mut state,
+    RunConfig::new(CrosstermTerminal::with_options(SalsaOptions {
+      alternate_screen: false,
+      shutdown_clear: true,
+      ratatui_options: TerminalOptions {
+        // viewport: Viewport::Fixed(Rect::new(term_size.0 - 30, term_size.1 - 10, 30, 10)),
+        viewport: Viewport::Inline(4),
+      },
+      ..Default::default()
+    })?)
+    .poll(PollCrossterm)
+    .poll(PollRendered),
+  )?;
 
-    Ok(())
+  Ok(())
 }
 
 /// Globally accessible data/state.
 pub struct Global {
-    ctx: SalsaAppContext<AppEvent, Error>,
+  ctx: SalsaAppContext<AppEvent, Error>,
 
-    pub cfg: Config,
-    pub theme: SalsaTheme,
+  pub cfg: Config,
+  pub theme: SalsaTheme,
 }
 
 impl SalsaContext<AppEvent, Error> for Global {
-    fn set_salsa_ctx(&mut self, app_ctx: SalsaAppContext<AppEvent, Error>) {
-        self.ctx = app_ctx;
-    }
+  fn set_salsa_ctx(&mut self, app_ctx: SalsaAppContext<AppEvent, Error>) {
+    self.ctx = app_ctx;
+  }
 
-    #[inline(always)]
-    fn salsa_ctx(&self) -> &SalsaAppContext<AppEvent, Error> {
-        &self.ctx
-    }
+  #[inline(always)]
+  fn salsa_ctx(&self) -> &SalsaAppContext<AppEvent, Error> {
+    &self.ctx
+  }
 }
 
 impl Global {
-    pub fn new(cfg: Config, theme: SalsaTheme) -> Self {
-        Self {
-            ctx: Default::default(),
-            cfg,
-            theme,
-        }
+  pub fn new(cfg: Config, theme: SalsaTheme) -> Self {
+    Self {
+      ctx: Default::default(),
+      cfg,
+      theme,
     }
+  }
 }
 
 /// Configuration.
@@ -98,158 +100,158 @@ pub struct Config {}
 
 #[derive(Debug)]
 pub enum AppEvent {
-    Timer(TimeOut),
-    Event(crossterm::event::Event),
-    Rendered,
-    Message(String),
-    Status(usize, String),
+  Timer(TimeOut),
+  Event(crossterm::event::Event),
+  Rendered,
+  Message(String),
+  Status(usize, String),
 }
 
 impl From<RenderedEvent> for AppEvent {
-    fn from(_: RenderedEvent) -> Self {
-        Self::Rendered
-    }
+  fn from(_: RenderedEvent) -> Self {
+    Self::Rendered
+  }
 }
 
 impl From<TimeOut> for AppEvent {
-    fn from(value: TimeOut) -> Self {
-        Self::Timer(value)
-    }
+  fn from(value: TimeOut) -> Self {
+    Self::Timer(value)
+  }
 }
 
 impl From<crossterm::event::Event> for AppEvent {
-    fn from(value: crossterm::event::Event) -> Self {
-        Self::Event(value)
-    }
+  fn from(value: crossterm::event::Event) -> Self {
+    Self::Event(value)
+  }
 }
 
 #[derive(Debug, Default)]
 pub struct Scenery {
-    pub menu: MenuLineState,
-    pub status: StatusLineState,
-    pub error_dlg: MsgDialogState,
+  pub menu: MenuLineState,
+  pub status: StatusLineState,
+  pub error_dlg: MsgDialogState,
 }
 
 pub fn render(
-    area: Rect,
-    buf: &mut Buffer,
-    state: &mut Scenery,
-    ctx: &mut Global,
+  area: Rect,
+  buf: &mut Buffer,
+  state: &mut Scenery,
+  ctx: &mut Global,
 ) -> Result<(), Error> {
-    let layout = Layout::vertical([
-        Constraint::Length(1),
-        Constraint::Fill(1), //
+  let layout = Layout::vertical([
+    Constraint::Length(1),
+    Constraint::Fill(1), //
+  ])
+  .split(area);
+
+  if state.error_dlg.active() {
+    MsgDialog::new().render(layout[1], buf, &mut state.error_dlg);
+  }
+
+  Text::from_iter([
+    Line::from("ui ui ui ui "),
+    Line::from("ui ui ui ui "),
+    Line::from("ui ui ui ui "),
+  ])
+  .style(ctx.theme.style::<Style>(Style::CONTAINER_BASE))
+  .render(layout[1], buf);
+
+  MenuLine::new()
+    .item_parsed("_First")
+    .item_parsed("_Second")
+    .item_parsed("_Third")
+    .item_parsed("_Quit")
+    .styles(ctx.theme.style(WidgetStyle::MENU))
+    .render(layout[0], buf, &mut state.menu);
+
+  let status_layout = Layout::horizontal([
+    Constraint::Fill(61), //
+    Constraint::Fill(39),
+  ])
+  .split(layout[0]);
+
+  StatusLine::new()
+    .layout([
+      Constraint::Fill(1),
+      Constraint::Length(8),
+      Constraint::Length(8),
     ])
-    .split(area);
+    .render(status_layout[1], buf, &mut state.status);
 
-    if state.error_dlg.active() {
-        MsgDialog::new().render(layout[1], buf, &mut state.error_dlg);
-    }
-
-    Text::from_iter([
-        Line::from("ui ui ui ui "),
-        Line::from("ui ui ui ui "),
-        Line::from("ui ui ui ui "),
-    ])
-    .style(ctx.theme.style::<Style>(Style::CONTAINER_BASE))
-    .render(layout[1], buf);
-
-    MenuLine::new()
-        .item_parsed("_First")
-        .item_parsed("_Second")
-        .item_parsed("_Third")
-        .item_parsed("_Quit")
-        .styles(ctx.theme.style(WidgetStyle::MENU))
-        .render(layout[0], buf, &mut state.menu);
-
-    let status_layout = Layout::horizontal([
-        Constraint::Fill(61), //
-        Constraint::Fill(39),
-    ])
-    .split(layout[0]);
-
-    StatusLine::new()
-        .layout([
-            Constraint::Fill(1),
-            Constraint::Length(8),
-            Constraint::Length(8),
-        ])
-        .render(status_layout[1], buf, &mut state.status);
-
-    Ok(())
+  Ok(())
 }
 
 impl_has_focus!(menu for Scenery);
 
 pub fn init(state: &mut Scenery, ctx: &mut Global) -> Result<(), Error> {
-    ctx.set_focus(FocusBuilder::build_for(state));
-    ctx.focus().first();
-    Ok(())
+  ctx.set_focus(FocusBuilder::build_for(state));
+  ctx.focus().first();
+  Ok(())
 }
 
 pub fn event(
-    event: &AppEvent,
-    state: &mut Scenery,
-    ctx: &mut Global,
+  event: &AppEvent,
+  state: &mut Scenery,
+  ctx: &mut Global,
 ) -> Result<Control<AppEvent>, Error> {
-    let t0 = SystemTime::now();
+  let t0 = SystemTime::now();
 
-    let r = match event {
-        AppEvent::Event(event) => {
-            let mut r = match &event {
-                ct_event!(resized) => Control::Changed,
-                ct_event!(key press CONTROL-'q') => Control::Quit,
-                _ => Control::Continue,
-            };
-
-            r = r.or_else(|| {
-                if state.error_dlg.active() {
-                    state.error_dlg.handle(event, Dialog).into()
-                } else {
-                    Control::Continue
-                }
-            });
-
-            ctx.handle_focus(event);
-
-            r = r.or_else_try(|| match state.menu.handle(event, Regular) {
-                MenuOutcome::Activated(0) => dump_raw(TEXT1.into(), ctx),
-                MenuOutcome::Activated(1) => dump_raw(TEXT2.into(), ctx),
-                MenuOutcome::Activated(2) => dump_raw(TEXT3.into(), ctx),
-                MenuOutcome::Activated(3) => Ok(Control::Quit),
-                v => Ok(v.into()),
-            })?;
-
-            r
-        }
-        AppEvent::Rendered => {
-            ctx.set_focus(FocusBuilder::rebuild_for(state, ctx.take_focus()));
-            Control::Continue
-        }
-        AppEvent::Message(s) => {
-            state.error_dlg.append(s.as_str());
-            Control::Changed
-        }
-        AppEvent::Status(n, s) => {
-            state.status.status(*n, s);
-            Control::Changed
-        }
-
+  let r = match event {
+    AppEvent::Event(event) => {
+      let mut r = match &event {
+        ct_event!(resized) => Control::Changed,
+        ct_event!(key press CONTROL-'q') => Control::Quit,
         _ => Control::Continue,
-    };
+      };
 
-    let el = t0.elapsed()?;
-    state.status.status(2, format!("E {:.0?}", el).to_string());
+      r = r.or_else(|| {
+        if state.error_dlg.active() {
+          state.error_dlg.handle(event, Dialog).into()
+        } else {
+          Control::Continue
+        }
+      });
 
-    Ok(r)
+      ctx.handle_focus(event);
+
+      r = r.or_else_try(|| match state.menu.handle(event, Regular) {
+        MenuOutcome::Activated(0) => dump_raw(TEXT1.into(), ctx),
+        MenuOutcome::Activated(1) => dump_raw(TEXT2.into(), ctx),
+        MenuOutcome::Activated(2) => dump_raw(TEXT3.into(), ctx),
+        MenuOutcome::Activated(3) => Ok(Control::Quit),
+        v => Ok(v.into()),
+      })?;
+
+      r
+    }
+    AppEvent::Rendered => {
+      ctx.set_focus(FocusBuilder::rebuild_for(state, ctx.take_focus()));
+      Control::Continue
+    }
+    AppEvent::Message(s) => {
+      state.error_dlg.append(s.as_str());
+      Control::Changed
+    }
+    AppEvent::Status(n, s) => {
+      state.status.status(*n, s);
+      Control::Changed
+    }
+
+    _ => Control::Continue,
+  };
+
+  let el = t0.elapsed()?;
+  state.status.status(2, format!("E {:.0?}", el).to_string());
+
+  Ok(r)
 }
 
 fn dump_raw(p0: String, ctx: &mut Global) -> Result<Control<AppEvent>, Error> {
-    let n_lines = p0.split('\n').count() as u16;
-    ctx.insert_before(n_lines, move |buf| {
-        Text::from(p0).render(buf.area, buf);
-    });
-    Ok(Control::Changed)
+  let n_lines = p0.split('\n').count() as u16;
+  ctx.insert_before(n_lines, move |buf| {
+    Text::from(p0).render(buf.area, buf);
+  });
+  Ok(Control::Changed)
 }
 
 static TEXT3: &str = r#"
@@ -307,24 +309,24 @@ C:\Users\stommy\Documents\Workspaces\biosys>
     "#;
 
 pub fn error(
-    event: Error,
-    state: &mut Scenery,
-    _ctx: &mut Global,
+  event: Error,
+  state: &mut Scenery,
+  _ctx: &mut Global,
 ) -> Result<Control<AppEvent>, Error> {
-    state.error_dlg.append(format!("{:?}", &*event).as_str());
-    Ok(Control::Changed)
+  state.error_dlg.append(format!("{:?}", &*event).as_str());
+  Ok(Control::Changed)
 }
 
 fn setup_logging() -> Result<(), Error> {
-    let log_path = PathBuf::from(".");
-    let log_file = log_path.join("log.log");
-    _ = fs::remove_file(&log_file);
-    fern::Dispatch::new()
-        .format(|out, message, _record| {
-            out.finish(format_args!("{}", message)) //
-        })
-        .level(log::LevelFilter::Debug)
-        .chain(fern::log_file(&log_file)?)
-        .apply()?;
-    Ok(())
+  let log_path = PathBuf::from(".");
+  let log_file = log_path.join("log.log");
+  _ = fs::remove_file(&log_file);
+  fern::Dispatch::new()
+    .format(|out, message, _record| {
+      out.finish(format_args!("{}", message)) //
+    })
+    .level(log::LevelFilter::Debug)
+    .chain(fern::log_file(&log_file)?)
+    .apply()?;
+  Ok(())
 }

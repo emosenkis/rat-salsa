@@ -48,7 +48,9 @@ use crate::paragraph::{Paragraph, ParagraphState};
 use crate::text::HasScreenCursor;
 use crate::util::{block_padding2, reset_buf_area};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use rat_event::{ConsumedEvent, Dialog, HandleEvent, Outcome, Regular, ct_event};
+use rat_event::{
+  ConsumedEvent, Dialog, HandleEvent, Outcome, Regular, ct_event,
+};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
 use rat_reloc::RelocatableState;
 use rat_scrolled::{Scroll, ScrollStyle};
@@ -64,468 +66,473 @@ use std::fmt::Debug;
 /// Basic status dialog for longer messages.
 #[derive(Debug, Default, Clone)]
 pub struct MsgDialog<'a> {
-    style: Style,
-    block: Option<Block<'a>>,
-    scroll_style: Option<ScrollStyle>,
-    button_style: Option<ButtonStyle>,
-    markdown: bool,
-    markdown_header_1: Option<Style>,
-    markdown_header_n: Option<Style>,
-    hide_paragraph_focus: bool,
+  style: Style,
+  block: Option<Block<'a>>,
+  scroll_style: Option<ScrollStyle>,
+  button_style: Option<ButtonStyle>,
+  markdown: bool,
+  markdown_header_1: Option<Style>,
+  markdown_header_n: Option<Style>,
+  hide_paragraph_focus: bool,
 
-    layout: LayoutOuter,
+  layout: LayoutOuter,
 }
 
 /// Combined style.
 #[derive(Debug, Clone)]
 pub struct MsgDialogStyle {
-    pub style: Style,
-    pub block: Option<Block<'static>>,
-    pub border_style: Option<Style>,
-    pub title_style: Option<Style>,
-    pub markdown: Option<bool>,
-    pub markdown_header_1: Option<Style>,
-    pub markdown_header_n: Option<Style>,
-    pub hide_paragraph_focus: Option<bool>,
-    pub scroll: Option<ScrollStyle>,
+  pub style: Style,
+  pub block: Option<Block<'static>>,
+  pub border_style: Option<Style>,
+  pub title_style: Option<Style>,
+  pub markdown: Option<bool>,
+  pub markdown_header_1: Option<Style>,
+  pub markdown_header_n: Option<Style>,
+  pub hide_paragraph_focus: Option<bool>,
+  pub scroll: Option<ScrollStyle>,
 
-    pub button: Option<ButtonStyle>,
+  pub button: Option<ButtonStyle>,
 
-    pub non_exhaustive: NonExhaustive,
+  pub non_exhaustive: NonExhaustive,
 }
 
 /// State & event handling.
 #[derive(Debug, Clone)]
 pub struct MsgDialogState {
-    /// Full area.
-    /// __readonly__. renewed for each render.
-    pub area: Rect,
-    /// Area inside the borders.
-    /// __readonly__. renewed for each render.
-    pub inner: Rect,
+  /// Full area.
+  /// __readonly__. renewed for each render.
+  pub area: Rect,
+  /// Area inside the borders.
+  /// __readonly__. renewed for each render.
+  pub inner: Rect,
 
-    /// Dialog is active.
-    /// __read+write__
-    pub active: Cell<bool>,
-    /// Dialog title
-    /// __read+write__
-    pub message_title: RefCell<String>,
-    /// Dialog text.
-    /// __read+write__
-    pub message: RefCell<String>,
+  /// Dialog is active.
+  /// __read+write__
+  pub active: Cell<bool>,
+  /// Dialog title
+  /// __read+write__
+  pub message_title: RefCell<String>,
+  /// Dialog text.
+  /// __read+write__
+  pub message: RefCell<String>,
 
-    /// Ok button
-    button: RefCell<ButtonState>,
-    /// message-text
-    paragraph: RefCell<ParagraphState>,
+  /// Ok button
+  button: RefCell<ButtonState>,
+  /// message-text
+  paragraph: RefCell<ParagraphState>,
 }
 
 impl<'a> MsgDialog<'a> {
-    /// New widget
-    pub fn new() -> Self {
-        Self::default()
+  /// New widget
+  pub fn new() -> Self {
+    Self::default()
+  }
+
+  /// Enable some markdown formatting.
+  pub fn markdown(mut self, md: bool) -> Self {
+    self.markdown = md;
+    self
+  }
+
+  /// Header 1 style
+  pub fn markdown_header_1(mut self, style: impl Into<Style>) -> Self {
+    self.markdown_header_1 = Some(style.into());
+    self
+  }
+
+  /// Other headers style
+  pub fn markdown_header_n(mut self, style: impl Into<Style>) -> Self {
+    self.markdown_header_n = Some(style.into());
+    self
+  }
+
+  /// Show the focus markers for the paragraph.
+  pub fn hide_paragraph_focus(mut self, hide: bool) -> Self {
+    self.hide_paragraph_focus = hide;
+    self
+  }
+
+  /// Block
+  pub fn block(mut self, block: Block<'a>) -> Self {
+    self.block = Some(block);
+    self.block = self.block.map(|v| v.style(self.style));
+    self
+  }
+
+  /// Margin constraint for the left side.
+  pub fn left(mut self, left: Constraint) -> Self {
+    self.layout = self.layout.left(left);
+    self
+  }
+
+  /// Margin constraint for the top side.
+  pub fn top(mut self, top: Constraint) -> Self {
+    self.layout = self.layout.top(top);
+    self
+  }
+
+  /// Margin constraint for the right side.
+  pub fn right(mut self, right: Constraint) -> Self {
+    self.layout = self.layout.right(right);
+    self
+  }
+
+  /// Margin constraint for the bottom side.
+  pub fn bottom(mut self, bottom: Constraint) -> Self {
+    self.layout = self.layout.bottom(bottom);
+    self
+  }
+
+  /// Put at a fixed position.
+  pub fn position(mut self, pos: Position) -> Self {
+    self.layout = self.layout.position(pos);
+    self
+  }
+
+  /// Constraint for the width.
+  pub fn width(mut self, width: Constraint) -> Self {
+    self.layout = self.layout.width(width);
+    self
+  }
+
+  /// Constraint for the height.
+  pub fn height(mut self, height: Constraint) -> Self {
+    self.layout = self.layout.height(height);
+    self
+  }
+
+  /// Set at a fixed size.
+  pub fn size(mut self, size: Size) -> Self {
+    self.layout = self.layout.size(size);
+    self
+  }
+
+  /// Combined style
+  pub fn styles(mut self, styles: MsgDialogStyle) -> Self {
+    self.style = styles.style;
+    if let Some(markdown) = styles.markdown {
+      self.markdown = markdown;
+    }
+    if let Some(markdown_header_1) = styles.markdown_header_1 {
+      self.markdown_header_1 = Some(markdown_header_1);
+    }
+    if let Some(markdown_header_n) = styles.markdown_header_n {
+      self.markdown_header_n = Some(markdown_header_n);
+    }
+    if let Some(hide_paragraph_focus) = styles.hide_paragraph_focus {
+      self.hide_paragraph_focus = hide_paragraph_focus;
+    }
+    if styles.block.is_some() {
+      self.block = styles.block;
+    }
+    if let Some(border_style) = styles.border_style {
+      self.block = self.block.map(|v| v.border_style(border_style));
+    }
+    if let Some(title_style) = styles.title_style {
+      self.block = self.block.map(|v| v.title_style(title_style));
+    }
+    self.block = self.block.map(|v| v.style(self.style));
+
+    if styles.scroll.is_some() {
+      self.scroll_style = styles.scroll;
     }
 
-    /// Enable some markdown formatting.
-    pub fn markdown(mut self, md: bool) -> Self {
-        self.markdown = md;
-        self
+    if styles.button.is_some() {
+      self.button_style = styles.button;
     }
 
-    /// Header 1 style
-    pub fn markdown_header_1(mut self, style: impl Into<Style>) -> Self {
-        self.markdown_header_1 = Some(style.into());
-        self
-    }
+    self
+  }
 
-    /// Other headers style
-    pub fn markdown_header_n(mut self, style: impl Into<Style>) -> Self {
-        self.markdown_header_n = Some(style.into());
-        self
-    }
+  /// Base style
+  pub fn style(mut self, style: impl Into<Style>) -> Self {
+    self.style = style.into();
+    self.block = self.block.map(|v| v.style(self.style));
+    self
+  }
 
-    /// Show the focus markers for the paragraph.
-    pub fn hide_paragraph_focus(mut self, hide: bool) -> Self {
-        self.hide_paragraph_focus = hide;
-        self
-    }
+  /// Scroll style.
+  pub fn scroll_style(mut self, style: ScrollStyle) -> Self {
+    self.scroll_style = Some(style);
+    self
+  }
 
-    /// Block
-    pub fn block(mut self, block: Block<'a>) -> Self {
-        self.block = Some(block);
-        self.block = self.block.map(|v| v.style(self.style));
-        self
-    }
-
-    /// Margin constraint for the left side.
-    pub fn left(mut self, left: Constraint) -> Self {
-        self.layout = self.layout.left(left);
-        self
-    }
-
-    /// Margin constraint for the top side.
-    pub fn top(mut self, top: Constraint) -> Self {
-        self.layout = self.layout.top(top);
-        self
-    }
-
-    /// Margin constraint for the right side.
-    pub fn right(mut self, right: Constraint) -> Self {
-        self.layout = self.layout.right(right);
-        self
-    }
-
-    /// Margin constraint for the bottom side.
-    pub fn bottom(mut self, bottom: Constraint) -> Self {
-        self.layout = self.layout.bottom(bottom);
-        self
-    }
-
-    /// Put at a fixed position.
-    pub fn position(mut self, pos: Position) -> Self {
-        self.layout = self.layout.position(pos);
-        self
-    }
-
-    /// Constraint for the width.
-    pub fn width(mut self, width: Constraint) -> Self {
-        self.layout = self.layout.width(width);
-        self
-    }
-
-    /// Constraint for the height.
-    pub fn height(mut self, height: Constraint) -> Self {
-        self.layout = self.layout.height(height);
-        self
-    }
-
-    /// Set at a fixed size.
-    pub fn size(mut self, size: Size) -> Self {
-        self.layout = self.layout.size(size);
-        self
-    }
-
-    /// Combined style
-    pub fn styles(mut self, styles: MsgDialogStyle) -> Self {
-        self.style = styles.style;
-        if let Some(markdown) = styles.markdown {
-            self.markdown = markdown;
-        }
-        if let Some(markdown_header_1) = styles.markdown_header_1 {
-            self.markdown_header_1 = Some(markdown_header_1);
-        }
-        if let Some(markdown_header_n) = styles.markdown_header_n {
-            self.markdown_header_n = Some(markdown_header_n);
-        }
-        if let Some(hide_paragraph_focus) = styles.hide_paragraph_focus {
-            self.hide_paragraph_focus = hide_paragraph_focus;
-        }
-        if styles.block.is_some() {
-            self.block = styles.block;
-        }
-        if let Some(border_style) = styles.border_style {
-            self.block = self.block.map(|v| v.border_style(border_style));
-        }
-        if let Some(title_style) = styles.title_style {
-            self.block = self.block.map(|v| v.title_style(title_style));
-        }
-        self.block = self.block.map(|v| v.style(self.style));
-
-        if styles.scroll.is_some() {
-            self.scroll_style = styles.scroll;
-        }
-
-        if styles.button.is_some() {
-            self.button_style = styles.button;
-        }
-
-        self
-    }
-
-    /// Base style
-    pub fn style(mut self, style: impl Into<Style>) -> Self {
-        self.style = style.into();
-        self.block = self.block.map(|v| v.style(self.style));
-        self
-    }
-
-    /// Scroll style.
-    pub fn scroll_style(mut self, style: ScrollStyle) -> Self {
-        self.scroll_style = Some(style);
-        self
-    }
-
-    /// Button style.
-    pub fn button_style(mut self, style: ButtonStyle) -> Self {
-        self.button_style = Some(style);
-        self
-    }
+  /// Button style.
+  pub fn button_style(mut self, style: ButtonStyle) -> Self {
+    self.button_style = Some(style);
+    self
+  }
 }
 
 impl Default for MsgDialogStyle {
-    fn default() -> Self {
-        Self {
-            style: Default::default(),
-            block: Default::default(),
-            border_style: Default::default(),
-            title_style: Default::default(),
-            markdown: Default::default(),
-            markdown_header_1: Default::default(),
-            markdown_header_n: Default::default(),
-            hide_paragraph_focus: Default::default(),
-            scroll: Default::default(),
-            button: Default::default(),
-            non_exhaustive: NonExhaustive,
-        }
+  fn default() -> Self {
+    Self {
+      style: Default::default(),
+      block: Default::default(),
+      border_style: Default::default(),
+      title_style: Default::default(),
+      markdown: Default::default(),
+      markdown_header_1: Default::default(),
+      markdown_header_n: Default::default(),
+      hide_paragraph_focus: Default::default(),
+      scroll: Default::default(),
+      button: Default::default(),
+      non_exhaustive: NonExhaustive,
     }
+  }
 }
 
 impl HasFocus for MsgDialogState {
-    fn build(&self, _builder: &mut FocusBuilder) {
-        // don't expose inner workings.
-    }
+  fn build(&self, _builder: &mut FocusBuilder) {
+    // don't expose inner workings.
+  }
 
-    fn focus(&self) -> FocusFlag {
-        unimplemented!("not available")
-    }
+  fn focus(&self) -> FocusFlag {
+    unimplemented!("not available")
+  }
 
-    fn area(&self) -> Rect {
-        unimplemented!("not available")
-    }
+  fn area(&self) -> Rect {
+    unimplemented!("not available")
+  }
 }
 
 impl RelocatableState for MsgDialogState {
-    fn relocate(&mut self, shift: (i16, i16), clip: Rect) {
-        self.area.relocate(shift, clip);
-        self.inner.relocate(shift, clip);
-        self.button.borrow_mut().relocate(shift, clip);
-        self.paragraph.borrow_mut().relocate(shift, clip);
-    }
+  fn relocate(&mut self, shift: (i16, i16), clip: Rect) {
+    self.area.relocate(shift, clip);
+    self.inner.relocate(shift, clip);
+    self.button.borrow_mut().relocate(shift, clip);
+    self.paragraph.borrow_mut().relocate(shift, clip);
+  }
 }
 
 impl HasScreenCursor for MsgDialogState {
-    fn screen_cursor(&self) -> Option<(u16, u16)> {
-        None
-    }
+  fn screen_cursor(&self) -> Option<(u16, u16)> {
+    None
+  }
 }
 
 impl MsgDialogState {
-    pub fn new() -> Self {
-        Self::default()
-    }
+  pub fn new() -> Self {
+    Self::default()
+  }
 
-    /// New dialog with active-flag set.
-    pub fn new_active(title: impl Into<String>, msg: impl AsRef<str>) -> Self {
-        let zelf = Self::default();
-        zelf.set_active(true);
-        zelf.title(title);
-        zelf.append(msg.as_ref());
-        zelf
-    }
+  /// New dialog with active-flag set.
+  pub fn new_active(title: impl Into<String>, msg: impl AsRef<str>) -> Self {
+    let zelf = Self::default();
+    zelf.set_active(true);
+    zelf.title(title);
+    zelf.append(msg.as_ref());
+    zelf
+  }
 
-    /// Show the dialog.
-    pub fn set_active(&self, active: bool) {
-        self.active.set(active);
-        self.build_focus().focus(&*self.paragraph.borrow());
-        self.paragraph.borrow_mut().set_line_offset(0);
-        self.paragraph.borrow_mut().set_col_offset(0);
-    }
+  /// Show the dialog.
+  pub fn set_active(&self, active: bool) {
+    self.active.set(active);
+    self.build_focus().focus(&*self.paragraph.borrow());
+    self.paragraph.borrow_mut().set_line_offset(0);
+    self.paragraph.borrow_mut().set_col_offset(0);
+  }
 
-    /// Dialog is active.
-    pub fn active(&self) -> bool {
-        self.active.get()
-    }
+  /// Dialog is active.
+  pub fn active(&self) -> bool {
+    self.active.get()
+  }
 
-    /// Clear message text, set active to false.
-    pub fn clear(&self) {
-        self.active.set(false);
-        *self.message.borrow_mut() = Default::default();
-    }
+  /// Clear message text, set active to false.
+  pub fn clear(&self) {
+    self.active.set(false);
+    *self.message.borrow_mut() = Default::default();
+  }
 
-    /// Set the title for the message.
-    pub fn title(&self, title: impl Into<String>) {
-        *self.message_title.borrow_mut() = title.into();
-    }
+  /// Set the title for the message.
+  pub fn title(&self, title: impl Into<String>) {
+    *self.message_title.borrow_mut() = title.into();
+  }
 
-    /// *Append* to the message.
-    pub fn append(&self, msg: &str) {
-        self.set_active(true);
-        let mut message = self.message.borrow_mut();
-        if !message.is_empty() {
-            message.push('\n');
-        }
-        message.push_str(msg);
+  /// *Append* to the message.
+  pub fn append(&self, msg: &str) {
+    self.set_active(true);
+    let mut message = self.message.borrow_mut();
+    if !message.is_empty() {
+      message.push('\n');
     }
+    message.push_str(msg);
+  }
 }
 
 impl Default for MsgDialogState {
-    fn default() -> Self {
-        let s = Self {
-            active: Default::default(),
-            area: Default::default(),
-            inner: Default::default(),
-            message: Default::default(),
-            button: Default::default(),
-            paragraph: Default::default(),
-            message_title: Default::default(),
-        };
-        s.paragraph.borrow().focus.set(true);
-        s
-    }
+  fn default() -> Self {
+    let s = Self {
+      active: Default::default(),
+      area: Default::default(),
+      inner: Default::default(),
+      message: Default::default(),
+      button: Default::default(),
+      paragraph: Default::default(),
+      message_title: Default::default(),
+    };
+    s.paragraph.borrow().focus.set(true);
+    s
+  }
 }
 
 impl MsgDialogState {
-    fn build_focus(&self) -> Focus {
-        let mut fb = FocusBuilder::default();
-        fb.widget(&*self.paragraph.borrow())
-            .widget(&*self.button.borrow());
-        fb.build()
-    }
+  fn build_focus(&self) -> Focus {
+    let mut fb = FocusBuilder::default();
+    fb.widget(&*self.paragraph.borrow())
+      .widget(&*self.button.borrow());
+    fb.build()
+  }
 }
 
 impl<'a> StatefulWidget for &MsgDialog<'a> {
-    type State = MsgDialogState;
+  type State = MsgDialogState;
 
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        render_ref(self, area, buf, state);
-    }
+  fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+    render_ref(self, area, buf, state);
+  }
 }
 
 impl StatefulWidget for MsgDialog<'_> {
-    type State = MsgDialogState;
+  type State = MsgDialogState;
 
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        render_ref(&self, area, buf, state);
-    }
+  fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+    render_ref(&self, area, buf, state);
+  }
 }
 
-fn render_ref(widget: &MsgDialog<'_>, area: Rect, buf: &mut Buffer, state: &mut MsgDialogState) {
-    state.area = area;
+fn render_ref(
+  widget: &MsgDialog<'_>,
+  area: Rect,
+  buf: &mut Buffer,
+  state: &mut MsgDialogState,
+) {
+  state.area = area;
 
-    if !state.active.get() {
-        return;
-    }
+  if !state.active.get() {
+    return;
+  }
 
-    let mut block;
-    let title = state.message_title.borrow();
-    let block = if let Some(b) = &widget.block {
-        if !title.is_empty() {
-            block = b.clone().title(title.as_str());
-            &block
-        } else {
-            b
-        }
+  let mut block;
+  let title = state.message_title.borrow();
+  let block = if let Some(b) = &widget.block {
+    if !title.is_empty() {
+      block = b.clone().title(title.as_str());
+      &block
     } else {
-        block = Block::bordered()
-            .style(widget.style)
-            .padding(Padding::new(1, 1, 1, 1));
-        if !title.is_empty() {
-            block = block.title(title.as_str());
-        }
-        &block
+      b
+    }
+  } else {
+    block = Block::bordered()
+      .style(widget.style)
+      .padding(Padding::new(1, 1, 1, 1));
+    if !title.is_empty() {
+      block = block.title(title.as_str());
+    }
+    &block
+  };
+
+  let l_dlg = layout_dialog(
+    area, //
+    block_padding2(block),
+    [Constraint::Length(10)],
+    0,
+    Flex::End,
+  );
+  state.area = l_dlg.area();
+  state.inner = l_dlg.widget_for(DialogItem::Inner);
+
+  let header_1 = widget.markdown_header_1.unwrap_or_default();
+  let header_n = widget.markdown_header_n.unwrap_or_default();
+
+  reset_buf_area(state.area, buf);
+  block.render(state.area, buf);
+
+  {
+    let scroll = if let Some(style) = &widget.scroll_style {
+      Scroll::new().styles(style.clone())
+    } else {
+      Scroll::new().style(widget.style)
     };
 
-    let l_dlg = layout_dialog(
-        area, //
-        block_padding2(block),
-        [Constraint::Length(10)],
-        0,
-        Flex::End,
-    );
-    state.area = l_dlg.area();
-    state.inner = l_dlg.widget_for(DialogItem::Inner);
-
-    let header_1 = widget.markdown_header_1.unwrap_or_default();
-    let header_n = widget.markdown_header_n.unwrap_or_default();
-
-    reset_buf_area(state.area, buf);
-    block.render(state.area, buf);
-
-    {
-        let scroll = if let Some(style) = &widget.scroll_style {
-            Scroll::new().styles(style.clone())
+    let message = state.message.borrow();
+    let mut lines = Vec::new();
+    if widget.markdown {
+      for t in message.lines() {
+        if t.starts_with("##") {
+          lines.push(Line::from(t).style(header_n));
+        } else if t.starts_with("#") {
+          lines.push(Line::from(t).style(header_1));
         } else {
-            Scroll::new().style(widget.style)
-        };
-
-        let message = state.message.borrow();
-        let mut lines = Vec::new();
-        if widget.markdown {
-            for t in message.lines() {
-                if t.starts_with("##") {
-                    lines.push(Line::from(t).style(header_n));
-                } else if t.starts_with("#") {
-                    lines.push(Line::from(t).style(header_1));
-                } else {
-                    lines.push(Line::from(t));
-                }
-            }
-        } else {
-            for t in message.lines() {
-                lines.push(Line::from(t));
-            }
+          lines.push(Line::from(t));
         }
-
-        let text = Text::from(lines).alignment(Alignment::Center);
-
-        Paragraph::new(text)
-            .scroll(scroll)
-            .hide_focus(widget.hide_paragraph_focus)
-            .render(
-                l_dlg.widget_for(DialogItem::Content),
-                buf,
-                &mut state.paragraph.borrow_mut(),
-            );
+      }
+    } else {
+      for t in message.lines() {
+        lines.push(Line::from(t));
+      }
     }
 
-    Button::new("Ok")
-        .styles_opt(widget.button_style.clone())
-        .render(
-            l_dlg.widget_for(DialogItem::Button(0)),
-            buf,
-            &mut state.button.borrow_mut(),
-        );
+    let text = Text::from(lines).alignment(Alignment::Center);
+
+    Paragraph::new(text)
+      .scroll(scroll)
+      .hide_focus(widget.hide_paragraph_focus)
+      .render(
+        l_dlg.widget_for(DialogItem::Content),
+        buf,
+        &mut state.paragraph.borrow_mut(),
+      );
+  }
+
+  Button::new("Ok")
+    .styles_opt(widget.button_style.clone())
+    .render(
+      l_dlg.widget_for(DialogItem::Button(0)),
+      buf,
+      &mut state.button.borrow_mut(),
+    );
 }
 
 impl HandleEvent<crossterm::event::Event, Dialog, Outcome> for MsgDialogState {
-    fn handle(&mut self, event: &crossterm::event::Event, _: Dialog) -> Outcome {
-        if self.active.get() {
-            let mut focus = self.build_focus();
-            let f = focus.handle(event, Regular);
+  fn handle(&mut self, event: &crossterm::event::Event, _: Dialog) -> Outcome {
+    if self.active.get() {
+      let mut focus = self.build_focus();
+      let f = focus.handle(event, Regular);
 
-            let mut r = match self
-                .button
-                .borrow_mut()
-                .handle(event, KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE))
-            {
-                ButtonOutcome::Pressed => {
-                    self.clear();
-                    self.active.set(false);
-                    Outcome::Changed
-                }
-                v => v.into(),
-            };
-            r = r.or_else(|| self.paragraph.borrow_mut().handle(event, Regular));
-            r = r.or_else(|| match event {
-                ct_event!(keycode press Esc) => {
-                    self.clear();
-                    self.active.set(false);
-                    Outcome::Changed
-                }
-                _ => Outcome::Continue,
-            });
-            // mandatory consume everything else.
-            max(max(Outcome::Unchanged, f), r)
-        } else {
-            Outcome::Continue
+      let mut r = match self
+        .button
+        .borrow_mut()
+        .handle(event, KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE))
+      {
+        ButtonOutcome::Pressed => {
+          self.clear();
+          self.active.set(false);
+          Outcome::Changed
         }
+        v => v.into(),
+      };
+      r = r.or_else(|| self.paragraph.borrow_mut().handle(event, Regular));
+      r = r.or_else(|| match event {
+        ct_event!(keycode press Esc) => {
+          self.clear();
+          self.active.set(false);
+          Outcome::Changed
+        }
+        _ => Outcome::Continue,
+      });
+      // mandatory consume everything else.
+      max(max(Outcome::Unchanged, f), r)
+    } else {
+      Outcome::Continue
     }
+  }
 }
 
 /// Handle events for the MsgDialog.
 pub fn handle_dialog_events(
-    state: &mut MsgDialogState,
-    event: &crossterm::event::Event,
+  state: &mut MsgDialogState,
+  event: &crossterm::event::Event,
 ) -> Outcome {
-    state.handle(event, Dialog)
+  state.handle(event, Dialog)
 }

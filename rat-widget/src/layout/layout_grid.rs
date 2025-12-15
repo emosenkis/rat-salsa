@@ -29,44 +29,48 @@ use ratatui::layout::{Constraint, Layout, Rect};
 /// let a_1_2 = layout.widget(layout.try_index_of((1,2)).expect("fine"));
 /// ```
 pub fn layout_as_grid(
-    area: Rect,
-    horizontal: Layout,
-    vertical: Layout,
+  area: Rect,
+  horizontal: Layout,
+  vertical: Layout,
 ) -> GenericLayout<(usize, usize)> {
-    let mut gen_layout = GenericLayout::new();
-    gen_layout.set_area(area);
-    gen_layout.set_page_size(area.as_size());
+  let mut gen_layout = GenericLayout::new();
+  gen_layout.set_area(area);
+  gen_layout.set_page_size(area.as_size());
 
-    let hori = horizontal.split(Rect::new(area.x, 0, area.width, 0));
-    let vert = vertical.split(Rect::new(0, area.y, 0, area.height));
+  let hori = horizontal.split(Rect::new(area.x, 0, area.width, 0));
+  let vert = vertical.split(Rect::new(0, area.y, 0, area.height));
 
-    for x in 0..hori.len() {
-        for y in 0..vert.len() {
-            let grid_area = Rect::new(hori[x].x, vert[y].y, hori[x].width, vert[y].height);
-            gen_layout.add((x, y), grid_area, None, Rect::default());
-        }
+  for x in 0..hori.len() {
+    for y in 0..vert.len() {
+      let grid_area =
+        Rect::new(hori[x].x, vert[y].y, hori[x].width, vert[y].height);
+      gen_layout.add((x, y), grid_area, None, Rect::default());
     }
+  }
 
-    gen_layout
+  gen_layout
 }
 
 /// Create a basic grid of areas using the given Constraints.
 pub fn simple_grid<const X: usize, const Y: usize>(
-    area: Rect,
-    horizontal: [Constraint; X],
-    vertical: [Constraint; Y],
+  area: Rect,
+  horizontal: [Constraint; X],
+  vertical: [Constraint; Y],
 ) -> [[Rect; Y]; X] {
-    let mut layout = [[Rect::default(); Y]; X];
+  let mut layout = [[Rect::default(); Y]; X];
 
-    let hori = Layout::horizontal(horizontal).split(Rect::new(area.x, 0, area.width, 0));
-    let vert = Layout::vertical(vertical).split(Rect::new(0, area.y, 0, area.height));
+  let hori =
+    Layout::horizontal(horizontal).split(Rect::new(area.x, 0, area.width, 0));
+  let vert =
+    Layout::vertical(vertical).split(Rect::new(0, area.y, 0, area.height));
 
-    for x in 0..X {
-        for y in 0..Y {
-            let grid_area = Rect::new(hori[x].x, vert[y].y, hori[x].width, vert[y].height);
-            layout[x][y] = grid_area;
-        }
+  for x in 0..X {
+    for y in 0..Y {
+      let grid_area =
+        Rect::new(hori[x].x, vert[y].y, hori[x].width, vert[y].height);
+      layout[x][y] = grid_area;
     }
+  }
 
-    layout
+  layout
 }

@@ -5,9 +5,9 @@ use std::fmt::{Display, Formatter};
 pub struct LoadPaletteErr(pub String);
 
 impl Display for LoadPaletteErr {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "load palette failed: {}", self.0)
-    }
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(f, "load palette failed: {}", self.0)
+  }
 }
 
 impl Error for LoadPaletteErr {}

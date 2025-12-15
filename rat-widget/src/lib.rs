@@ -9,37 +9,38 @@
 #![allow(clippy::uninlined_format_args)]
 
 pub mod event {
-    //!
-    //! Event-handler traits and Keybindings.
-    //!
-    //! See [rat-event](https://docs.rs/rat-event/latest/rat_event/)
-    //!
-    pub use rat_event::*;
+  //!
+  //! Event-handler traits and Keybindings.
+  //!
+  //! See [rat-event](https://docs.rs/rat-event/latest/rat_event/)
+  //!
+  pub use rat_event::*;
 
-    pub use crate::button::event::ButtonOutcome;
-    pub use crate::calendar::event::CalOutcome;
-    pub use crate::checkbox::event::CheckOutcome;
-    pub use crate::choice::event::ChoiceOutcome;
-    pub use crate::combobox::event::ComboboxOutcome;
-    pub use crate::file_dialog::event::FileOutcome;
-    pub use crate::form::event::FormOutcome;
-    pub use crate::radio::event::RadioOutcome;
-    pub use crate::slider::event::SliderOutcome;
-    pub use crate::tabbed::event::TabbedOutcome;
-    pub use rat_ftable::event::{DoubleClickOutcome, EditOutcome, TableOutcome};
-    pub use rat_menu::event::MenuOutcome;
-    pub use rat_popup::event::PopupOutcome;
-    pub use rat_scrolled::event::ScrollOutcome;
-    pub use rat_text::event::{ReadOnly, TextOutcome};
+  pub use crate::button::event::ButtonOutcome;
+  // DISABLED: calendar has chrono::Locale version conflict with termin.ai
+  // pub use crate::calendar::event::CalOutcome;
+  pub use crate::checkbox::event::CheckOutcome;
+  pub use crate::choice::event::ChoiceOutcome;
+  pub use crate::combobox::event::ComboboxOutcome;
+  pub use crate::file_dialog::event::FileOutcome;
+  pub use crate::form::event::FormOutcome;
+  pub use crate::radio::event::RadioOutcome;
+  pub use crate::slider::event::SliderOutcome;
+  pub use crate::tabbed::event::TabbedOutcome;
+  pub use rat_ftable::event::{DoubleClickOutcome, EditOutcome, TableOutcome};
+  pub use rat_menu::event::MenuOutcome;
+  pub use rat_popup::event::PopupOutcome;
+  pub use rat_scrolled::event::ScrollOutcome;
+  pub use rat_text::event::{ReadOnly, TextOutcome};
 }
 
 /// Module for focus-handling functionality.
 /// See [rat-focus](https://docs.rs/rat-focus)
 pub mod focus {
-    pub use rat_focus::{
-        Focus, FocusBuilder, FocusFlag, HasFocus, Navigation, handle_focus, impl_has_focus,
-        match_focus, on_gained, on_lost,
-    };
+  pub use rat_focus::{
+    Focus, FocusBuilder, FocusFlag, HasFocus, Navigation, handle_focus,
+    impl_has_focus, match_focus, on_gained, on_lost,
+  };
 }
 
 /// Layout calculations apart from ratatui/Layout.
@@ -48,43 +49,45 @@ pub mod layout;
 /// Trait for relocatable widgets.
 /// See also [rat-reloc](https://docs.rs/rat-reloc/latest/rat_reloc/)
 pub mod reloc {
-    pub use rat_reloc::{
-        RelocatableState, impl_relocatable_state, relocate_area, relocate_areas, relocate_position,
-        relocate_positions,
-    };
+  pub use rat_reloc::{
+    RelocatableState, impl_relocatable_state, relocate_area, relocate_areas,
+    relocate_position, relocate_positions,
+  };
 }
 
 /// Scroll attribute and event-handling.
 /// See [rat-scrolled](https://docs.rs/rat-scrolled/latest/rat_scrolled/)
 pub mod scrolled {
-    pub use rat_scrolled::{
-        SCROLLBAR_DOUBLE_HORIZONTAL, SCROLLBAR_DOUBLE_VERTICAL, SCROLLBAR_HORIZONTAL,
-        SCROLLBAR_VERTICAL, Scroll, ScrollArea, ScrollAreaState, ScrollState, ScrollStyle,
-        ScrollSymbols, ScrollbarPolicy,
-    };
+  pub use rat_scrolled::{
+    SCROLLBAR_DOUBLE_HORIZONTAL, SCROLLBAR_DOUBLE_VERTICAL,
+    SCROLLBAR_HORIZONTAL, SCROLLBAR_VERTICAL, Scroll, ScrollArea,
+    ScrollAreaState, ScrollState, ScrollStyle, ScrollSymbols, ScrollbarPolicy,
+  };
 }
 
 /// Text editing core functionality and utilities.
 pub mod text {
-    pub use rat_text::clipboard;
-    pub use rat_text::core;
-    pub use rat_text::undo_buffer;
-    pub use rat_text::{
-        Cursor, Grapheme, HasScreenCursor, Locale, TextError, TextFocusGained, TextFocusLost,
-        TextPosition, TextRange, TextStyle, TextTab, impl_screen_cursor, ipos_type, screen_cursor,
-        upos_type,
-    };
+  pub use rat_text::clipboard;
+  pub use rat_text::core;
+  pub use rat_text::undo_buffer;
+  pub use rat_text::{
+    Cursor, Grapheme, HasScreenCursor, Locale, TextError, TextFocusGained,
+    TextFocusLost, TextPosition, TextRange, TextStyle, TextTab,
+    impl_screen_cursor, ipos_type, screen_cursor, upos_type,
+  };
 }
 
 // --- widget modules here --- (alphabetical)
 
 pub mod button;
-pub mod calendar;
+// DISABLED: calendar has chrono::Locale version conflict with termin.ai
+// pub mod calendar;
 pub mod checkbox;
 pub mod choice;
 pub mod clipper;
 pub mod combobox;
-pub mod date_input;
+// DISABLED: date_input has chrono::Locale version conflict with termin.ai
+// pub mod date_input;
 pub mod dialog_frame;
 pub mod file_dialog;
 pub mod form;
@@ -93,7 +96,8 @@ pub mod line_number;
 pub mod list;
 pub mod menu;
 pub mod msgdialog;
-pub mod number_input;
+// DISABLED: number_input has chrono::Locale version conflict with termin.ai
+// pub mod number_input;
 pub mod paired;
 pub mod paragraph;
 pub mod popup;
@@ -113,6 +117,6 @@ pub mod util;
 pub mod view;
 
 mod _private {
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct NonExhaustive;
+  #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+  pub struct NonExhaustive;
 }

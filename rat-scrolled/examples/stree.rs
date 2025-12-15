@@ -1,5 +1,5 @@
 fn main() {
-    unreachable!("not functional")
+  unreachable!("not functional")
 }
 
 //

@@ -11,71 +11,71 @@ use ratatui::widgets::Widget;
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        journal: Default::default(),
-    };
+  let mut state = State {
+    journal: Default::default(),
+  };
 
-    run_ui("keybinding", mock_init, event, render, &mut state)
+  run_ui("keybinding", mock_init, event, render, &mut state)
 }
 
 struct State {
-    pub(crate) journal: Vec<(NaiveTime, KeyEvent)>,
+  pub(crate) journal: Vec<(NaiveTime, KeyEvent)>,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    if state.journal.len() > 0 {
-        let numf = NumberFormat::new("##,###,###")?;
+  if state.journal.len() > 0 {
+    let numf = NumberFormat::new("##,###,###")?;
 
-        let off = state.journal.len().saturating_sub(area.height as usize);
-        let journal = &state.journal[off..];
+    let off = state.journal.len().saturating_sub(area.height as usize);
+    let journal = &state.journal[off..];
 
-        let zero = off.saturating_sub(1);
-        let mut prev_time = state.journal[zero].0.clone();
+    let zero = off.saturating_sub(1);
+    let mut prev_time = state.journal[zero].0.clone();
 
-        for (n, (time, event)) in journal.iter().enumerate() {
-            let row_area = Rect::new(area.x, area.y + n as u16, area.width, 1);
+    for (n, (time, event)) in journal.iter().enumerate() {
+      let row_area = Rect::new(area.x, area.y + n as u16, area.width, 1);
 
-            let dur = time.signed_duration_since(prev_time);
+      let dur = time.signed_duration_since(prev_time);
 
-            let msg = Span::from(
-                format!(
-                    "{:>20} {:?} {:?} {:?} {:?}",
-                    numf.fmt_u(dur.num_microseconds().expect("duration")),
-                    event.kind,
-                    event.code,
-                    event.modifiers,
-                    event.state
-                )
-                .to_string(),
-            );
-            msg.render(row_area, buf);
+      let msg = Span::from(
+        format!(
+          "{:>20} {:?} {:?} {:?} {:?}",
+          numf.fmt_u(dur.num_microseconds().expect("duration")),
+          event.kind,
+          event.code,
+          event.modifiers,
+          event.state
+        )
+        .to_string(),
+      );
+      msg.render(row_area, buf);
 
-            prev_time = time.clone();
-        }
+      prev_time = time.clone();
     }
+  }
 
-    Ok(())
+  Ok(())
 }
 
 fn event(
-    event: &Event,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &Event,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    try_flow!(match event {
-        Event::Key(k) => {
-            state.journal.push((Local::now().time(), k.clone()));
-            Outcome::Changed
-        }
-        _ => Outcome::Continue,
-    });
+  try_flow!(match event {
+    Event::Key(k) => {
+      state.journal.push((Local::now().time(), k.clone()));
+      Outcome::Changed
+    }
+    _ => Outcome::Continue,
+  });
 
-    Ok(Outcome::Continue)
+  Ok(Outcome::Continue)
 }

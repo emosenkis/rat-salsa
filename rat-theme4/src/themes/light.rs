@@ -4,6 +4,6 @@ use crate::themes::create_dark;
 
 /// A dark theme.
 pub fn create_light(p: Palette) -> SalsaTheme {
-    // currently the same as dark
-    create_dark(p)
+  // currently the same as dark
+  create_dark(p)
 }

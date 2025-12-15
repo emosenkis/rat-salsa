@@ -23,160 +23,163 @@ mod data;
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        table_data: data::DATA
-            .iter()
-            .map(|v| Sample {
-                text: *v,
-                num1: rand::random(),
-                num2: rand::random(),
-                check: rand::random(),
-            })
-            .collect(),
-        table: Default::default(),
-    };
-    state.table.hscroll.set_scroll_by(Some(1));
+  let mut state = State {
+    table_data: data::DATA
+      .iter()
+      .map(|v| Sample {
+        text: *v,
+        num1: rand::random(),
+        num2: rand::random(),
+        check: rand::random(),
+      })
+      .collect(),
+    table: Default::default(),
+  };
+  state.table.hscroll.set_scroll_by(Some(1));
 
-    run_ui("layoutwidth", mock_init, event, render, &mut state)
+  run_ui("layoutwidth", mock_init, event, render, &mut state)
 }
 
 struct Sample {
-    pub(crate) text: &'static str,
-    pub(crate) num1: f32,
-    pub(crate) num2: f32,
-    pub(crate) check: bool,
+  pub(crate) text: &'static str,
+  pub(crate) num1: f32,
+  pub(crate) num2: f32,
+  pub(crate) check: bool,
 }
 
 struct State {
-    table_data: Vec<Sample>,
-    table: TableState<RowSelection>,
+  table_data: Vec<Sample>,
+  table: TableState<RowSelection>,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l0 = Layout::horizontal([Constraint::Percentage(61), Constraint::Percentage(39)])
-        .flex(Flex::Center)
-        .split(area);
+  let l0 = Layout::horizontal([
+    Constraint::Percentage(61),
+    Constraint::Percentage(39),
+  ])
+  .flex(Flex::Center)
+  .split(area);
 
-    struct DataSlice<'a>(&'a [Sample]);
+  struct DataSlice<'a>(&'a [Sample]);
 
-    impl<'a> TableData<'a> for DataSlice<'a> {
-        fn rows(&self) -> usize {
-            self.0.len()
-        }
-
-        fn render_cell(
-            &self,
-            _ctx: &TableContext,
-            column: usize,
-            row: usize,
-            area: Rect,
-            buf: &mut Buffer,
-        ) {
-            if let Some(d) = self.0.get(row) {
-                match column {
-                    0 => {
-                        let row_fmt = NumberFormat::new("000000").expect("fmt");
-                        let span = Span::from(row_fmt.fmt_u(row));
-                        span.render(area, buf);
-                    }
-                    1 => {
-                        let span = Span::from(d.text);
-                        span.render(area, buf);
-                    }
-                    2 => {
-                        let num1_fmt = NumberFormat::new("####0.00").expect("fmt");
-                        let span = Span::from(num1_fmt.fmt_u(d.num1));
-                        span.render(area, buf);
-                    }
-                    3 => {
-                        let num2_fmt = NumberFormat::new("####0.00").expect("fmt");
-                        let span = Span::from(num2_fmt.fmt_u(d.num2));
-                        span.render(area, buf);
-                    }
-                    4 => {
-                        let cc = if d.check { "\u{2622}" } else { "\u{2623}" };
-                        let span = Span::from(cc);
-                        span.render(area, buf);
-                    }
-                    _ => {}
-                }
-            }
-        }
+  impl<'a> TableData<'a> for DataSlice<'a> {
+    fn rows(&self) -> usize {
+      self.0.len()
     }
 
-    Table::default()
-        .data(DataSlice(&state.table_data))
-        .widths([
-            Constraint::Length(6),
-            Constraint::Length(20),
-            Constraint::Length(15),
-            Constraint::Length(15),
-            Constraint::Length(3),
-        ])
-        // use a fixed total.
-        // .layout_width(150)
-        .column_spacing(1)
-        .header(Row::new([
-            Cell::from("Nr"),
-            Cell::from("Text"),
-            Cell::from("Val1"),
-            Cell::from("Val2"),
-            Cell::from("State"),
-        ]))
-        .footer(Row::new(["a", "b", "c", "d", "e"]))
-        .block(
-            Block::bordered()
-                .border_type(block::BorderType::Rounded)
-                .title("column-scroll"),
-        )
-        .hscroll(Scroll::new())
-        .vscroll(Scroll::new())
-        .flex(Flex::SpaceBetween)
-        .styles(table(&ctx.theme))
-        .render(l0[0], buf, &mut state.table);
+    fn render_cell(
+      &self,
+      _ctx: &TableContext,
+      column: usize,
+      row: usize,
+      area: Rect,
+      buf: &mut Buffer,
+    ) {
+      if let Some(d) = self.0.get(row) {
+        match column {
+          0 => {
+            let row_fmt = NumberFormat::new("000000").expect("fmt");
+            let span = Span::from(row_fmt.fmt_u(row));
+            span.render(area, buf);
+          }
+          1 => {
+            let span = Span::from(d.text);
+            span.render(area, buf);
+          }
+          2 => {
+            let num1_fmt = NumberFormat::new("####0.00").expect("fmt");
+            let span = Span::from(num1_fmt.fmt_u(d.num1));
+            span.render(area, buf);
+          }
+          3 => {
+            let num2_fmt = NumberFormat::new("####0.00").expect("fmt");
+            let span = Span::from(num2_fmt.fmt_u(d.num2));
+            span.render(area, buf);
+          }
+          4 => {
+            let cc = if d.check { "\u{2622}" } else { "\u{2623}" };
+            let span = Span::from(cc);
+            span.render(area, buf);
+          }
+          _ => {}
+        }
+      }
+    }
+  }
 
-    render_tablestate(&state.table, l0[1], buf);
+  Table::default()
+    .data(DataSlice(&state.table_data))
+    .widths([
+      Constraint::Length(6),
+      Constraint::Length(20),
+      Constraint::Length(15),
+      Constraint::Length(15),
+      Constraint::Length(3),
+    ])
+    // use a fixed total.
+    // .layout_width(150)
+    .column_spacing(1)
+    .header(Row::new([
+      Cell::from("Nr"),
+      Cell::from("Text"),
+      Cell::from("Val1"),
+      Cell::from("Val2"),
+      Cell::from("State"),
+    ]))
+    .footer(Row::new(["a", "b", "c", "d", "e"]))
+    .block(
+      Block::bordered()
+        .border_type(block::BorderType::Rounded)
+        .title("column-scroll"),
+    )
+    .hscroll(Scroll::new())
+    .vscroll(Scroll::new())
+    .flex(Flex::SpaceBetween)
+    .styles(table(&ctx.theme))
+    .render(l0[0], buf, &mut state.table);
 
-    Ok(())
+  render_tablestate(&state.table, l0[1], buf);
+
+  Ok(())
 }
 
 fn table(th: &SalsaTheme) -> rat_ftable::TableStyle {
-    rat_ftable::TableStyle {
-        style: th.style(Style::CONTAINER_BASE),
-        select_row: Some(th.style(Style::SELECT)),
-        show_row_focus: true,
-        focus_style: Some(th.style(Style::FOCUS)),
-        border_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        scroll: Some(scroll(th)),
-        header: Some(th.style(Style::HEADER)),
-        footer: Some(th.style(Style::FOOTER)),
-        ..Default::default()
-    }
+  rat_ftable::TableStyle {
+    style: th.style(Style::CONTAINER_BASE),
+    select_row: Some(th.style(Style::SELECT)),
+    show_row_focus: true,
+    focus_style: Some(th.style(Style::FOCUS)),
+    border_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    scroll: Some(scroll(th)),
+    header: Some(th.style(Style::HEADER)),
+    footer: Some(th.style(Style::FOOTER)),
+    ..Default::default()
+  }
 }
 
 fn scroll(th: &SalsaTheme) -> ScrollStyle {
-    ScrollStyle {
-        thumb_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        track_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        min_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        begin_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
-        end_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
-        ..Default::default()
-    }
+  ScrollStyle {
+    thumb_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    track_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    min_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    begin_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
+    end_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
+    ..Default::default()
+  }
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    let r = rowselection::handle_events(&mut state.table, true, event);
-    Ok(r.into())
+  let r = rowselection::handle_events(&mut state.table, true, event);
+  Ok(r.into())
 }

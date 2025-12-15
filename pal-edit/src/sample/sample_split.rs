@@ -12,63 +12,67 @@ use ratatui::prelude::StatefulWidget;
 
 #[derive(Debug)]
 pub struct SampleSplit {
-    pub split: SplitState,
+  pub split: SplitState,
 }
 
 impl HasFocus for SampleSplit {
-    fn build(&self, builder: &mut FocusBuilder) {
-        builder.widget_navigate(&self.split, Navigation::Regular);
-    }
+  fn build(&self, builder: &mut FocusBuilder) {
+    builder.widget_navigate(&self.split, Navigation::Regular);
+  }
 
-    fn focus(&self) -> FocusFlag {
-        unimplemented!("not available")
-    }
+  fn focus(&self) -> FocusFlag {
+    unimplemented!("not available")
+  }
 
-    fn area(&self) -> Rect {
-        unimplemented!("not available")
-    }
+  fn area(&self) -> Rect {
+    unimplemented!("not available")
+  }
 }
 
 impl HasScreenCursor for SampleSplit {
-    fn screen_cursor(&self) -> Option<(u16, u16)> {
-        None
-    }
+  fn screen_cursor(&self) -> Option<(u16, u16)> {
+    None
+  }
 }
 
 impl Default for SampleSplit {
-    fn default() -> Self {
-        Self {
-            split: SplitState::named("split"),
-        }
+  fn default() -> Self {
+    Self {
+      split: SplitState::named("split"),
     }
+  }
 }
 
 pub fn render(
-    area: Rect,
-    buf: &mut Buffer,
-    state: &mut SampleSplit,
-    ctx: &mut Global,
+  area: Rect,
+  buf: &mut Buffer,
+  state: &mut SampleSplit,
+  ctx: &mut Global,
 ) -> Result<(), Error> {
-    let (split_layout, split) = Split::new()
-        .direction(Direction::Horizontal)
-        .split_type(SplitType::FullPlain)
-        .constraints([
-            Constraint::Percentage(20),
-            Constraint::Percentage(20),
-            Constraint::Percentage(60),
-        ])
-        .styles(ctx.show_theme.style(WidgetStyle::SPLIT))
-        .into_widgets();
-    split_layout.render(area, buf, &mut state.split);
+  let (split_layout, split) = Split::new()
+    .direction(Direction::Horizontal)
+    .split_type(SplitType::FullPlain)
+    .constraints([
+      Constraint::Percentage(20),
+      Constraint::Percentage(20),
+      Constraint::Percentage(60),
+    ])
+    .styles(ctx.show_theme.style(WidgetStyle::SPLIT))
+    .into_widgets();
+  split_layout.render(area, buf, &mut state.split);
 
-    // todo
+  // todo
 
-    split.render(area, buf, &mut state.split);
+  split.render(area, buf, &mut state.split);
 
-    Ok(())
+  Ok(())
 }
 
-pub fn event(event: &Event, state: &mut SampleSplit, _ctx: &mut Global) -> Result<Outcome, Error> {
-    event_flow!(state.split.handle(event, Regular));
-    Ok(Outcome::Continue)
+pub fn event(
+  event: &Event,
+  state: &mut SampleSplit,
+  _ctx: &mut Global,
+) -> Result<Outcome, Error> {
+  event_flow!(state.split.handle(event, Regular));
+  Ok(Outcome::Continue)
 }

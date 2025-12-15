@@ -13,82 +13,85 @@ use ratatui::widgets::{BarGroup, Block};
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        view_state: Default::default(),
-    };
+  let mut state = State {
+    view_state: Default::default(),
+  };
 
-    run_ui("view-barchart1", mock_init, event, render, &mut state)
+  run_ui("view-barchart1", mock_init, event, render, &mut state)
 }
 
 struct State {
-    view_state: ViewState,
+  view_state: ViewState,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l = Layout::horizontal([
-        Constraint::Length(1),
-        Constraint::Fill(1),
-        Constraint::Length(1),
-        Constraint::Fill(1),
-        Constraint::Length(1),
-    ])
-    .split(area);
+  let l = Layout::horizontal([
+    Constraint::Length(1),
+    Constraint::Fill(1),
+    Constraint::Length(1),
+    Constraint::Fill(1),
+    Constraint::Length(1),
+  ])
+  .split(area);
 
-    let mut view_buf = View::new()
-        .layout(Rect::new(0, 0, 200, 30))
-        .block(Block::bordered().border_type(BorderType::Rounded))
-        .vscroll(Scroll::new())
-        .hscroll(Scroll::new())
-        .into_buffer(l[1], &mut state.view_state);
+  let mut view_buf = View::new()
+    .layout(Rect::new(0, 0, 200, 30))
+    .block(Block::bordered().border_type(BorderType::Rounded))
+    .vscroll(Scroll::new())
+    .hscroll(Scroll::new())
+    .into_buffer(l[1], &mut state.view_state);
 
-    view_buf.render_widget(
-        BarChart::default()
-            .block(Block::bordered().title("BarChart"))
-            .direction(Direction::Horizontal)
-            .bar_width(3)
-            .bar_gap(1)
-            .group_gap(3)
-            .bar_style(Style::new().yellow().on_red())
-            .value_style(Style::new().red().bold())
-            .label_style(Style::new().white())
-            .data(&[("B0", 0), ("B1", 2), ("B2", 4), ("B3", 3)])
-            .data(BarGroup::default().bars(&[Bar::default().value(10), Bar::default().value(20)]))
-            .max(4),
-        Rect::new(0, 0, 100, 15),
-    );
+  view_buf.render_widget(
+    BarChart::default()
+      .block(Block::bordered().title("BarChart"))
+      .direction(Direction::Horizontal)
+      .bar_width(3)
+      .bar_gap(1)
+      .group_gap(3)
+      .bar_style(Style::new().yellow().on_red())
+      .value_style(Style::new().red().bold())
+      .label_style(Style::new().white())
+      .data(&[("B0", 0), ("B1", 2), ("B2", 4), ("B3", 3)])
+      .data(
+        BarGroup::default()
+          .bars(&[Bar::default().value(10), Bar::default().value(20)]),
+      )
+      .max(4),
+    Rect::new(0, 0, 100, 15),
+  );
 
-    view_buf.finish(buf, &mut state.view_state);
+  view_buf.finish(buf, &mut state.view_state);
 
-    Ok(())
+  Ok(())
 }
 
 fn focus(state: &mut State) -> Focus {
-    let mut fb = FocusBuilder::new(None);
-    fb.widget(&state.view_state);
-    fb.build()
+  let mut fb = FocusBuilder::new(None);
+  fb.widget(&state.view_state);
+  fb.build()
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    ctx.focus_outcome = focus(state).handle(event, Regular);
+  ctx.focus_outcome = focus(state).handle(event, Regular);
 
-    // handle inner first.
-    let view_focused = state.view_state.is_focused();
-    try_flow!(view::handle_events(
-        &mut state.view_state,
-        view_focused,
-        event
-    ));
+  // handle inner first.
+  let view_focused = state.view_state.is_focused();
+  try_flow!(view::handle_events(
+    &mut state.view_state,
+    view_focused,
+    event
+  ));
 
-    Ok(Outcome::Continue)
+  Ok(Outcome::Continue)
 }

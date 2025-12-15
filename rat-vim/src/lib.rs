@@ -15,25 +15,29 @@ pub struct SearchError;
 impl Error for SearchError {}
 
 impl Display for SearchError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{:?}", self)
+  }
 }
 
-impl From<regex_cursor::regex_automata::dfa::dense::BuildError> for SearchError {
-    fn from(_value: regex_cursor::regex_automata::dfa::dense::BuildError) -> Self {
-        Self
-    }
+impl From<regex_cursor::regex_automata::dfa::dense::BuildError>
+  for SearchError
+{
+  fn from(
+    _value: regex_cursor::regex_automata::dfa::dense::BuildError,
+  ) -> Self {
+    Self
+  }
 }
 
 impl From<regex_cursor::regex_automata::MatchError> for SearchError {
-    fn from(_value: regex_cursor::regex_automata::MatchError) -> Self {
-        Self
-    }
+  fn from(_value: regex_cursor::regex_automata::MatchError) -> Self {
+    Self
+  }
 }
 
 impl From<regex_cursor::regex_automata::hybrid::BuildError> for SearchError {
-    fn from(_value: regex_cursor::regex_automata::hybrid::BuildError) -> Self {
-        Self
-    }
+  fn from(_value: regex_cursor::regex_automata::hybrid::BuildError) -> Self {
+    Self
+  }
 }

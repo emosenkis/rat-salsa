@@ -13,6 +13,6 @@
 //!
 //! See [rat-ftable](https://docs.rs/rat-ftable/)
 pub use rat_ftable::{
-    Table, TableContext, TableData, TableDataIter, TableSelection, TableState, TableStyle, edit,
-    handle_doubleclick_events, selection, textdata,
+  Table, TableContext, TableData, TableDataIter, TableSelection, TableState,
+  TableStyle, edit, handle_doubleclick_events, selection, textdata,
 };

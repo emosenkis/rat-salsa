@@ -4,18 +4,21 @@
 
 /// A copy of the crossterm-KeyModifiers. Plus a few combinations of modifiers.
 pub mod modifiers {
-    use crossterm::event::KeyModifiers;
+  use crossterm::event::KeyModifiers;
 
-    pub const NONE: KeyModifiers = KeyModifiers::NONE;
-    pub const CONTROL: KeyModifiers = KeyModifiers::CONTROL;
-    pub const SHIFT: KeyModifiers = KeyModifiers::SHIFT;
-    pub const ALT: KeyModifiers = KeyModifiers::ALT;
-    pub const META: KeyModifiers = KeyModifiers::META;
-    pub const SUPER: KeyModifiers = KeyModifiers::SUPER;
-    pub const HYPER: KeyModifiers = KeyModifiers::HYPER;
-    pub const CONTROL_ALT: KeyModifiers = KeyModifiers::from_bits_truncate(0b0000_0110);
-    pub const CONTROL_SHIFT: KeyModifiers = KeyModifiers::from_bits_truncate(0b0000_0011);
-    pub const ALT_SHIFT: KeyModifiers = KeyModifiers::from_bits_truncate(0b0000_0101);
+  pub const NONE: KeyModifiers = KeyModifiers::NONE;
+  pub const CONTROL: KeyModifiers = KeyModifiers::CONTROL;
+  pub const SHIFT: KeyModifiers = KeyModifiers::SHIFT;
+  pub const ALT: KeyModifiers = KeyModifiers::ALT;
+  pub const META: KeyModifiers = KeyModifiers::META;
+  pub const SUPER: KeyModifiers = KeyModifiers::SUPER;
+  pub const HYPER: KeyModifiers = KeyModifiers::HYPER;
+  pub const CONTROL_ALT: KeyModifiers =
+    KeyModifiers::from_bits_truncate(0b0000_0110);
+  pub const CONTROL_SHIFT: KeyModifiers =
+    KeyModifiers::from_bits_truncate(0b0000_0011);
+  pub const ALT_SHIFT: KeyModifiers =
+    KeyModifiers::from_bits_truncate(0b0000_0101);
 }
 
 /// This macro produces pattern matches for crossterm events.

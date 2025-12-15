@@ -21,89 +21,89 @@ use ratatui::widgets::{Block, block};
 mod mini_salsa;
 
 fn main() -> Result<(), anyhow::Error> {
-    setup_logging()?;
+  setup_logging()?;
 
-    let mut state = State {
-        table: Default::default(),
-    };
+  let mut state = State {
+    table: Default::default(),
+  };
 
-    run_ui("empty", mock_init, event, render, &mut state)
+  run_ui("empty", mock_init, event, render, &mut state)
 }
 
 struct State {
-    table: TableState<NoSelection>,
+  table: TableState<NoSelection>,
 }
 
 fn render(
-    buf: &mut Buffer,
-    area: Rect,
-    ctx: &mut MiniSalsaState,
-    state: &mut State,
+  buf: &mut Buffer,
+  area: Rect,
+  ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<(), anyhow::Error> {
-    let l0 = Layout::horizontal([Constraint::Percentage(61)])
-        .flex(Flex::Center)
-        .split(area);
+  let l0 = Layout::horizontal([Constraint::Percentage(61)])
+    .flex(Flex::Center)
+    .split(area);
 
-    Table::default()
-        .widths([
-            Constraint::Length(6),
-            Constraint::Length(20),
-            Constraint::Length(15),
-            Constraint::Length(15),
-            Constraint::Length(3),
-        ])
-        .column_spacing(1)
-        .header(Row::new([
-            Cell::from("Nr"),
-            Cell::from("Text"),
-            Cell::from("Val1"),
-            Cell::from("Val2"),
-            Cell::from("State"),
-        ]))
-        .footer(Row::new(["a", "b", "c", "d", "e"]))
-        .block(
-            Block::bordered()
-                .border_type(block::BorderType::Rounded)
-                .title("empty"),
-        )
-        .vscroll(Scroll::new())
-        .flex(Flex::End)
-        .styles(table(&ctx.theme))
-        .render(l0[0], buf, &mut state.table);
+  Table::default()
+    .widths([
+      Constraint::Length(6),
+      Constraint::Length(20),
+      Constraint::Length(15),
+      Constraint::Length(15),
+      Constraint::Length(3),
+    ])
+    .column_spacing(1)
+    .header(Row::new([
+      Cell::from("Nr"),
+      Cell::from("Text"),
+      Cell::from("Val1"),
+      Cell::from("Val2"),
+      Cell::from("State"),
+    ]))
+    .footer(Row::new(["a", "b", "c", "d", "e"]))
+    .block(
+      Block::bordered()
+        .border_type(block::BorderType::Rounded)
+        .title("empty"),
+    )
+    .vscroll(Scroll::new())
+    .flex(Flex::End)
+    .styles(table(&ctx.theme))
+    .render(l0[0], buf, &mut state.table);
 
-    Ok(())
+  Ok(())
 }
 
 fn table(th: &SalsaTheme) -> rat_ftable::TableStyle {
-    rat_ftable::TableStyle {
-        style: th.style(Style::CONTAINER_BASE),
-        select_row: Some(th.style(Style::SELECT)),
-        show_row_focus: true,
-        focus_style: Some(th.style(Style::FOCUS)),
-        border_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        scroll: Some(scroll(th)),
-        header: Some(th.style(Style::HEADER)),
-        footer: Some(th.style(Style::FOOTER)),
-        ..Default::default()
-    }
+  rat_ftable::TableStyle {
+    style: th.style(Style::CONTAINER_BASE),
+    select_row: Some(th.style(Style::SELECT)),
+    show_row_focus: true,
+    focus_style: Some(th.style(Style::FOCUS)),
+    border_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    scroll: Some(scroll(th)),
+    header: Some(th.style(Style::HEADER)),
+    footer: Some(th.style(Style::FOOTER)),
+    ..Default::default()
+  }
 }
 
 fn scroll(th: &SalsaTheme) -> ScrollStyle {
-    ScrollStyle {
-        thumb_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        track_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        min_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
-        begin_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
-        end_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
-        ..Default::default()
-    }
+  ScrollStyle {
+    thumb_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    track_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    min_style: Some(th.style(Style::CONTAINER_BORDER_FG)),
+    begin_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
+    end_style: Some(th.style(Style::CONTAINER_ARROW_FG)),
+    ..Default::default()
+  }
 }
 
 fn event(
-    event: &crossterm::event::Event,
-    _ctx: &mut MiniSalsaState,
-    state: &mut State,
+  event: &crossterm::event::Event,
+  _ctx: &mut MiniSalsaState,
+  state: &mut State,
 ) -> Result<Outcome, anyhow::Error> {
-    let r = noselection::handle_events(&mut state.table, true, event);
-    Ok(r.into())
+  let r = noselection::handle_events(&mut state.table, true, event);
+  Ok(r.into())
 }
