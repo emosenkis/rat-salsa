@@ -109,7 +109,7 @@ pub fn create_shell(p: Palette) -> SalsaTheme {
   #[cfg(feature = "rat-widget")]
   th.define_fn(WidgetStyle::BUTTON, button);
   #[cfg(feature = "rat-widget")]
-  th.define_fn(WidgetStyle::CALENDAR, month);
+  // DISABLED: th.define_fn(WidgetStyle::CALENDAR, month);
   #[cfg(feature = "rat-widget")]
   th.define_fn(WidgetStyle::CHECKBOX, checkbox);
   #[cfg(feature = "rat-widget")]
@@ -134,7 +134,7 @@ pub fn create_shell(p: Palette) -> SalsaTheme {
   #[cfg(feature = "rat-widget")]
   th.define_fn(WidgetStyle::MENU, menu);
   #[cfg(feature = "rat-widget")]
-  th.define_fn(WidgetStyle::MONTH, month);
+  // DISABLED: th.define_fn(WidgetStyle::MONTH, month);
   #[cfg(feature = "rat-widget")]
   th.define_fn(WidgetStyle::MSG_DIALOG, msg_dialog);
   #[cfg(feature = "rat-widget")]
@@ -325,18 +325,19 @@ fn menu(th: &SalsaTheme) -> rat_widget::menu::MenuStyle {
 }
 
 #[cfg(feature = "rat-widget")]
-fn month(th: &SalsaTheme) -> rat_widget::calendar::CalendarStyle {
-  rat_widget::calendar::CalendarStyle {
-    style: th.style(Style::CONTAINER_BASE),
-    title: Some(th.style(Style::MONTH_HEADER_FG)),
-    weeknum: Some(th.style(Style::WEEK_HEADER_FG)),
-    weekday: Some(th.style(Style::WEEK_HEADER_FG)),
-    day: None,
-    select: Some(th.style(Style::SELECT)),
-    focus: Some(th.style(Style::FOCUS)),
-    ..rat_widget::calendar::CalendarStyle::default()
-  }
-}
+// DISABLED: calendar module
+// // fn month(th: &SalsaTheme) -> rat_widget::calendar::CalendarStyle {
+//   rat_widget::calendar::CalendarStyle {
+//     style: th.style(Style::CONTAINER_BASE),
+//     title: Some(th.style(Style::MONTH_HEADER_FG)),
+//     weeknum: Some(th.style(Style::WEEK_HEADER_FG)),
+//     weekday: Some(th.style(Style::WEEK_HEADER_FG)),
+//     day: None,
+//     select: Some(th.style(Style::SELECT)),
+//     focus: Some(th.style(Style::FOCUS)),
+//     ..rat_widget::calendar::CalendarStyle::default()
+//   }
+// }
 
 #[cfg(feature = "rat-widget")]
 fn msg_dialog(th: &SalsaTheme) -> rat_widget::msgdialog::MsgDialogStyle {

@@ -101,11 +101,12 @@ pub fn create_fallback(p: Palette) -> SalsaTheme {
     WidgetStyle::BUTTON,
     rat_widget::button::ButtonStyle::default,
   );
-  #[cfg(feature = "rat-widget")]
-  th.define_fn0(
-    WidgetStyle::CALENDAR,
-    rat_widget::calendar::CalendarStyle::default,
-  );
+  // DISABLED: calendar module
+  // #[cfg(feature = "rat-widget")]
+  // th.define_fn0(
+  //   WidgetStyle::CALENDAR,
+  //   rat_widget::calendar::CalendarStyle::default,
+  // );
   #[cfg(feature = "rat-widget")]
   th.define_fn0(
     WidgetStyle::CHECKBOX,
@@ -149,11 +150,12 @@ pub fn create_fallback(p: Palette) -> SalsaTheme {
   th.define_fn0(WidgetStyle::LIST, rat_widget::list::ListStyle::default);
   #[cfg(feature = "rat-widget")]
   th.define_fn0(WidgetStyle::MENU, rat_widget::menu::MenuStyle::default);
-  #[cfg(feature = "rat-widget")]
-  th.define_fn0(
-    WidgetStyle::MONTH,
-    rat_widget::calendar::CalendarStyle::default,
-  );
+  // DISABLED: calendar/month module
+  // #[cfg(feature = "rat-widget")]
+  // th.define_fn0(
+  //   WidgetStyle::MONTH,
+  //   rat_widget::calendar::CalendarStyle::default,
+  // );
   #[cfg(feature = "rat-widget")]
   th.define_fn0(
     WidgetStyle::MSG_DIALOG,
