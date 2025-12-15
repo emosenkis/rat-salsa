@@ -313,6 +313,16 @@ where
     }
   }
 
+  /// Set how many lines to scroll up into native terminal scrollback.
+  ///
+  /// This pushes content from the inline terminal into the host terminal's
+  /// scrollback buffer, allowing users to scroll back through output.
+  ///
+  /// This should only be set during rendering.
+  fn set_scroll_up(&self, lines: u16) {
+    self.salsa_ctx().scroll_up.set(lines);
+  }
+
   /// Add a timer.
   ///
   /// __Panic__
@@ -613,6 +623,8 @@ where
   pub(crate) count: Cell<usize>,
   /// Output cursor position. Set to Frame after rendering is complete.
   pub(crate) cursor: Cell<Option<(u16, u16)>>,
+  /// Scroll up hint. Set to Frame after rendering is complete.
+  pub(crate) scroll_up: Cell<u16>,
   /// Terminal area
   pub(crate) term: Option<Rc<RefCell<dyn Terminal<Error>>>>,
   /// Clear terminal before next draw.
@@ -687,6 +699,7 @@ where
       focus: Default::default(),
       count: Default::default(),
       cursor: Default::default(),
+      scroll_up: Default::default(),
       term: Default::default(),
       clear_terminal: Default::default(),
       insert_before: Default::default(),

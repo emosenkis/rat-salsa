@@ -80,6 +80,7 @@ where
     focus: Default::default(),
     count: Default::default(),
     cursor: Default::default(),
+    scroll_up: Default::default(),
     term: Some(term.clone()),
     clear_terminal: Default::default(),
     insert_before: Default::default(),
@@ -116,8 +117,13 @@ where
     if let Some((cursor_x, cursor_y)) = global.salsa_ctx().cursor.get() {
       frame.set_cursor_position((cursor_x, cursor_y));
     }
+    let scroll_up_lines = global.salsa_ctx().scroll_up.get();
+    if scroll_up_lines > 0 {
+      frame.set_scroll_up(scroll_up_lines);
+    }
     global.salsa_ctx().count.set(frame.count());
     global.salsa_ctx().cursor.set(None);
+    global.salsa_ctx().scroll_up.set(0);
     Ok(())
   })?;
   if let Some(idx) = rendered_event {
