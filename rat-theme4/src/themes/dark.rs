@@ -329,7 +329,6 @@ fn menu(th: &SalsaTheme) -> rat_widget::menu::MenuStyle {
 //     ..rat_widget::calendar::CalendarStyle::default()
 //   }
 // }
-
 #[cfg(feature = "rat-widget")]
 fn msg_dialog(th: &SalsaTheme) -> rat_widget::msgdialog::MsgDialogStyle {
   rat_widget::msgdialog::MsgDialogStyle {
