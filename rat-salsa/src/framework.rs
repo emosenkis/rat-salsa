@@ -119,7 +119,8 @@ where
     }
     let scroll_up_lines = global.salsa_ctx().scroll_up.get();
     if scroll_up_lines > 0 {
-      frame.set_scroll_up(scroll_up_lines);
+      // TODO: Uncomment when ratatui has set_scroll_up method
+      // frame.set_scroll_up(scroll_up_lines);
     }
     global.salsa_ctx().count.set(frame.count());
     global.salsa_ctx().cursor.set(None);
