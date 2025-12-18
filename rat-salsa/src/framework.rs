@@ -5,6 +5,7 @@ use crate::poll::{PollQuit, PollRendered, PollTasks, PollTimers};
 use crate::run_config::RunConfig;
 use crate::{Control, SalsaAppContext, SalsaContext};
 use poll_queue::PollQueue;
+use ratatui::Frame;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use std::any::TypeId;
@@ -27,7 +28,7 @@ fn _run_tui<Global, State, Event, Error>(
   ) -> Result<(), Error>,
   render: fn(
     area: Rect, //
-    buf: &mut Buffer,
+    frame: &mut Frame,
     state: &mut State,
     ctx: &mut Global,
   ) -> Result<(), Error>,
@@ -109,7 +110,7 @@ where
   term.borrow_mut().render(&mut |frame| {
     let frame_area = frame.area();
     let ttt = SystemTime::now();
-    render(frame_area, frame.buffer_mut(), state, global)?;
+    render(frame_area, frame, state, global)?;
     global
       .salsa_ctx()
       .last_render
@@ -117,13 +118,8 @@ where
     if let Some((cursor_x, cursor_y)) = global.salsa_ctx().cursor.get() {
       frame.set_cursor_position((cursor_x, cursor_y));
     }
-    let scroll_up_lines = global.salsa_ctx().scroll_up.get();
-    if scroll_up_lines > 0 {
-      frame.set_scroll_up(scroll_up_lines);
-    }
     global.salsa_ctx().count.set(frame.count());
     global.salsa_ctx().cursor.set(None);
-    global.salsa_ctx().scroll_up.set(0);
     Ok(())
   })?;
   if let Some(idx) = rendered_event {
@@ -221,7 +217,12 @@ where
           let r = term.borrow_mut().render(&mut |frame| {
             let frame_area = frame.area();
             let ttt = SystemTime::now();
-            render(frame_area, frame.buffer_mut(), state, global)?;
+            render(frame_area, frame, state, global)?;
+            let scroll_up_lines = global.salsa_ctx().scroll_up.get();
+            if scroll_up_lines > 0 {
+              frame.set_scroll_up(scroll_up_lines);
+            }
+            global.salsa_ctx().scroll_up.set(0);
             global
               .salsa_ctx()
               .last_render
@@ -404,7 +405,7 @@ pub fn run_tui<Global, State, Event, Error>(
   ) -> Result<(), Error>,
   render: fn(
     area: Rect, //
-    buf: &mut Buffer,
+    frame: &mut Frame,
     state: &mut State,
     ctx: &mut Global,
   ) -> Result<(), Error>,

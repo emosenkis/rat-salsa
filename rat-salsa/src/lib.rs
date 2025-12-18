@@ -313,16 +313,6 @@ where
     }
   }
 
-  /// Set how many lines to scroll up into native terminal scrollback.
-  ///
-  /// This pushes content from the inline terminal into the host terminal's
-  /// scrollback buffer, allowing users to scroll back through output.
-  ///
-  /// This should only be set during rendering.
-  fn set_scroll_up(&self, lines: u16) {
-    self.salsa_ctx().scroll_up.set(lines);
-  }
-
   /// Add a timer.
   ///
   /// __Panic__
