@@ -6,7 +6,6 @@ use crate::run_config::RunConfig;
 use crate::{Control, SalsaAppContext, SalsaContext};
 use poll_queue::PollQueue;
 use ratatui::Frame;
-use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use std::any::TypeId;
 use std::cmp::min;
