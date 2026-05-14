@@ -1627,7 +1627,6 @@ where
     }
   }
 
-  #[expect(clippy::collapsible_else_if)]
   fn patch_select(
     &self,
     style: Option<Style>,
