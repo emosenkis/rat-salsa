@@ -158,6 +158,14 @@ pub struct CrosstermTerminal {
 }
 
 impl CrosstermTerminal {
+  pub fn from_ratatui_terminal(
+    term: ratatui::Terminal<CrosstermBackend<Stdout>>,
+    cfg: SalsaOptions,
+  ) -> Self {
+    set_panic_hook();
+    Self { term, cfg }
+  }
+
   /// Create a full-screen, alternate screen terminal.
   pub fn new() -> Result<Self, io::Error> {
     set_panic_hook();
