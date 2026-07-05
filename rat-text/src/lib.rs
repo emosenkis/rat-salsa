@@ -5,10 +5,10 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
 
 pub mod clipboard;
-// DISABLED: date_input has chrono::Locale version conflict with termin.ai
+// DISABLED: date_input has chrono::Locale version conflict with Terminai
 // pub mod date_input;
 pub mod line_number;
-// DISABLED: number_input has chrono::Locale version conflict with termin.ai
+// DISABLED: number_input has chrono::Locale version conflict with Terminai
 // pub mod number_input;
 pub mod text_area;
 pub mod text_input;
@@ -27,7 +27,7 @@ mod text_store;
 pub use grapheme::Grapheme;
 
 use crate::_private::NonExhaustive;
-// DISABLED: pure_rust_locales::Locale has version conflict with termin.ai
+// DISABLED: pure_rust_locales::Locale has version conflict with Terminai
 // pub use pure_rust_locales::Locale;
 pub use rat_cursor::{HasScreenCursor, impl_screen_cursor, screen_cursor};
 use rat_scrolled::ScrollStyle;

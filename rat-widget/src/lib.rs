@@ -17,7 +17,7 @@ pub mod event {
   pub use rat_event::*;
 
   pub use crate::button::event::ButtonOutcome;
-  // DISABLED: calendar has chrono::Locale version conflict with termin.ai
+  // DISABLED: calendar has chrono::Locale version conflict with Terminai
   // pub use crate::calendar::event::CalOutcome;
   pub use crate::checkbox::event::CheckOutcome;
   pub use crate::choice::event::ChoiceOutcome;
@@ -80,13 +80,13 @@ pub mod text {
 // --- widget modules here --- (alphabetical)
 
 pub mod button;
-// DISABLED: calendar has chrono::Locale version conflict with termin.ai
+// DISABLED: calendar has chrono::Locale version conflict with Terminai
 // pub mod calendar;
 pub mod checkbox;
 pub mod choice;
 pub mod clipper;
 pub mod combobox;
-// DISABLED: date_input has chrono::Locale version conflict with termin.ai
+// DISABLED: date_input has chrono::Locale version conflict with Terminai
 // pub mod date_input;
 pub mod dialog_frame;
 pub mod file_dialog;
@@ -96,7 +96,7 @@ pub mod line_number;
 pub mod list;
 pub mod menu;
 pub mod msgdialog;
-// DISABLED: number_input has chrono::Locale version conflict with termin.ai
+// DISABLED: number_input has chrono::Locale version conflict with Terminai
 // pub mod number_input;
 pub mod paired;
 pub mod paragraph;
