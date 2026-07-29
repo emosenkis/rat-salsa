@@ -6,7 +6,6 @@
 //!
 
 use crate::_private::NonExhaustive;
-use crossterm::ExecutableCommand;
 use crossterm::cursor::{DisableBlinking, EnableBlinking, SetCursorStyle};
 use crossterm::event::{
   DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste,
@@ -19,9 +18,11 @@ use crossterm::event::{
 #[cfg(not(windows))]
 use crossterm::terminal::supports_keyboard_enhancement;
 use crossterm::terminal::{
-  Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen,
-  disable_raw_mode, enable_raw_mode,
+  BeginSynchronizedUpdate, Clear, ClearType, EndSynchronizedUpdate,
+  EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode,
+  enable_raw_mode,
 };
+use crossterm::{Command, ExecutableCommand};
 use log::debug;
 use rat_event::util::set_have_keyboard_enhancement;
 #[cfg(feature = "scrolling-regions")]
@@ -126,6 +127,8 @@ pub struct SalsaOptions {
   /// This might be useful if you set [SalsaOptions::ratatui_options]
   /// to something else then FullScreen.
   pub shutdown_clear: bool,
+  /// Bracket each rendered frame with synchronized-update escape sequences.
+  pub synchronized_output: bool,
 
   pub non_exhaustive: NonExhaustive,
 }
@@ -146,6 +149,7 @@ impl Default for SalsaOptions {
         viewport: Viewport::Fullscreen,
       },
       shutdown_clear: false,
+      synchronized_output: false,
       non_exhaustive: NonExhaustive,
     }
   }
@@ -328,9 +332,32 @@ where
   ) -> Result<(), Error> {
     let mut res = Ok(());
     _ = self.term.hide_cursor();
-    self.term.draw(|frame| res = f(frame))?;
+    execute_if_enabled(
+      self.term.backend_mut(),
+      self.cfg.synchronized_output,
+      BeginSynchronizedUpdate,
+    )?;
+    let draw_result = self.term.draw(|frame| res = f(frame)).map(|_| ());
+    let sync_result = execute_if_enabled(
+      self.term.backend_mut(),
+      self.cfg.synchronized_output,
+      EndSynchronizedUpdate,
+    );
+    draw_result?;
+    sync_result?;
     res
   }
+}
+
+fn execute_if_enabled<W: io::Write, C: Command>(
+  writer: &mut W,
+  enabled: bool,
+  command: C,
+) -> io::Result<()> {
+  if enabled {
+    writer.execute(command)?;
+  }
+  Ok(())
 }
 
 /// Sets a panic hook that restores the terminal before panicking.
@@ -404,4 +431,23 @@ fn shutdown(cfg: &SalsaOptions) -> io::Result<()> {
   }
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn synchronized_output_sequences_can_be_disabled() {
+    let mut output = Vec::new();
+
+    execute_if_enabled(&mut output, true, BeginSynchronizedUpdate).unwrap();
+    execute_if_enabled(&mut output, true, EndSynchronizedUpdate).unwrap();
+    assert_eq!(output, b"\x1b[?2026h\x1b[?2026l");
+
+    output.clear();
+    execute_if_enabled(&mut output, false, BeginSynchronizedUpdate).unwrap();
+    execute_if_enabled(&mut output, false, EndSynchronizedUpdate).unwrap();
+    assert!(output.is_empty());
+  }
 }
